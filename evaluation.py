@@ -1,4 +1,6 @@
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+import os
+import json
 
 
 
@@ -39,3 +41,26 @@ def confusion_matrix_and_classification_report(
     class_rep_test = classification_report(y_test, y_pred_test)
     
     return conf_mat_train, class_rep_train, conf_mat_test, class_rep_test
+
+
+# Save columns and model results section cell 69 notebook
+
+def save_columns_and_model_results(
+    X_train,
+    model_results,
+    out_dir = "artifacts"):
+    """Save column list and model results to JSON files"""
+    # Ensure output directory exists
+    os.makedirs(out_dir, exist_ok=True)
+    column_list_path = os.path.join(out_dir, "columns_list.json")
+    # Extract columns names from X_train
+    with open(column_list_path, "w", encoding="utf-8") as columns_file:
+        columns = {"column_names": list(X_train.columns)}
+        json.dump(columns, columns_file)
+    
+    # Output path for the model results JSON
+    model_results_path = os.path.join(out_dir, "model_results.json")
+    with open(model_results_path, "w", encoding="utf-8") as results_file:
+        json.dump(model_results, model_results_path)
+    
+    return column_list_path, model_results_path
