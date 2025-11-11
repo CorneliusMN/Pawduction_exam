@@ -165,3 +165,23 @@ def compare_prod_and_best_trained(
     print(f"Registered model: {run_id}")
     
     return run_id
+
+
+# Register best model section cell 85 notebook
+
+def register_best_model(
+    run_id,
+    artifact_path,
+    model_name):
+    """Register a model from a run into the MLFlow Model Registry."""
+    if run_id is not None:
+        print("Best model found: ", run_id)
+        model_uri = mlflow.get_artifact_uri(artifact_path=artifact_path, run_id = run_id)
+        model_registered = mlflow.register_model(model_uri=model_uri, name=model_name)
+        model_registered = dict(model_registered)
+        
+        return model_registered
+    else:
+        print("No run id is provided.")
+        
+        return None
