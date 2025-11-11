@@ -1,6 +1,8 @@
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import os
 import json
+import mlflow
+from mlflow.tracking import MlflowClient
 
 
 
@@ -64,3 +66,25 @@ def save_columns_and_model_results(
         json.dump(model_results, model_results_path)
     
     return column_list_path, model_results_path
+
+
+# Model selection section cell 71 notebook
+
+def model_selection(
+    experiment_name,
+    metric = "f1_score",
+    ascending = False,
+    max_results = 10):
+    """Return a Dataframe of runs for an experiment, sorted by a metric (f1_score by default)"""
+    client = MlflowClient()
+    experiment = client.get_experiment_by_name(experiment_name)
+    if experiment is None:
+        raise ValueError(f"Experiment {experiment_name} not found.")
+    
+    runs = mlflow.search_runs(
+        experiment_ids=[experiment.experiment_id],
+        max_results=max_results,
+        order_by=[f"metrics.{metric} {"ASC" if ascending else "DESC"}"]
+    )
+    
+    return runs
