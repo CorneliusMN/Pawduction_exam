@@ -141,3 +141,27 @@ def get_production_model(model_name):
         print("No model in production.")
 
 
+# Compare prod and best trained model section cell 83 notebook
+
+def compare_prod_and_best_trained(
+    experiment_best,
+    production_model_exists,
+    production_model_run_id):
+    """Compare Production vs. best trained model (by f1_score) and decide run_id to register."""
+    train_model_score = experiment_best["metrics.f1_score"]
+    model_status = {}
+    run_id = None
+    
+    if production_model_exists:
+        data, details = mlflow.get_run(production_model_run_id)
+        production_model_score = data[1]["metrics.f1_score"]
+        model_status["current"] = train_model_score
+        model_status["prod"] = production_model_score
+        if train_model_score > production_model_score:
+            run_id = experiment_best["run_id"]
+    else:
+        run_id = experiment_best["run_id"]
+    
+    print(f"Registered model: {run_id}")
+    
+    return run_id
