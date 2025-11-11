@@ -121,3 +121,23 @@ def load_results_and_print_best_model(results_path = "./artifacts/model_results.
     best_model = results_df.sort_values("f1-score", ascending=False).iloc[0].name
     
     return best_model
+
+
+# Get production model section cell 81 notebook
+
+def get_production_model(model_name):
+    """Load the latest production-ready model for a given name."""
+    client = MlflowClient()
+    production_model = [model for model in client.search_model_versions(f"name='{model_name}'") if dict(model)["current_stage"] == "Production"]
+    production_model_exists = len(production_model) > 0
+    
+    if production_model_exists:
+        production_model_version = dict(production_model[0])["version"]
+        production_model_run_id = dict(production_model[0])["run_id"]
+        print("Production model name: ", model_name)
+        print("Production model version:" , production_model_version)
+        print("Production model run id:" , production_model_run_id)
+    else:
+        print("No model in production.")
+
+
