@@ -1,4 +1,4 @@
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 
 
@@ -21,3 +21,21 @@ def report_best_xgboost_and_accuracy(
     accuracy_test = accuracy_score(y_test, y_pred_test)
     
     return best_model_xgboost_params, accuracy_train, accuracy_test
+
+
+# XGBoost performance overview section cell 63 notebook
+
+def confusion_matrix_and_classification_report(
+    y_train,
+    y_pred_train,
+    y_test,
+    y_pred_test):
+    """Produce a performance overview consisting of confusion matrix and classification report for train and test."""
+    # Train
+    conf_mat_train = confusion_matrix(y_train, y_pred_train)
+    class_rep_train = classification_report(y_train, y_pred_train)
+    # Test
+    conf_mat_test = confusion_matrix(y_test, y_pred_test)
+    class_rep_test = classification_report(y_test, y_pred_test)
+    
+    return conf_mat_train, class_rep_train, conf_mat_test, class_rep_test
