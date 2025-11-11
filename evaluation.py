@@ -3,6 +3,7 @@ import os
 import json
 import mlflow
 from mlflow.tracking import MlflowClient
+import pandas as pd
 
 
 
@@ -88,3 +89,35 @@ def model_selection(
     )
     
     return runs
+
+
+# Getting experiment model results section cell 74 notebook
+
+def get_experiment_best_f1(experiment_name):
+    """Return the top run by f1 from the given experiment"""
+    experiment = mlflow.get_experiment_by_name(experiment_name)
+    if experiment is None:
+        raise ValueError(f"Experiment {experiment_name} not found.")
+    experiment_ids = [experiment.experiment_id]
+    experiment_best = mlflow.search_runs(
+        experiment_ids=experiment_ids,
+        order_by=["metric.f1_score DESC"],
+        max_results=1).iloc[0]
+    
+    return experiment_best
+
+
+def load_results_and_print_best_model(results_path = "./artifacts/model_results.json"):
+    """
+    Load ./artifacts/model_results.json, build a DataFrame of weighted averages,
+    and print the best model by f1-score.
+    """
+    with open(results_path, "r", encoding="utf-8") as file:
+        model_results = json.load(file)
+    
+    results_df = pd.DataFrame(
+        {model: val["weighted avg"] for model, val in model_results.items()}).T
+    
+    best_model = results_df.sort_values("f1-score", ascending=False).iloc[0].name
+    
+    return best_model
