@@ -42,7 +42,6 @@ def impute(cat_vars: pd.DataFrame, cont_vars: pd.Dataframe):
 
     # Continuous variables missing values
     cont_vars = cont_vars.apply(impute_missing_values)
-    cont_vars.apply(describe_numeric_col).T
 
     # Cat vars missing values
     cat_vars.loc[cat_vars['customer_code'].isna(),'customer_code'] = 'None'
