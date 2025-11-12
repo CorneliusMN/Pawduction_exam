@@ -5,6 +5,7 @@ from sklearn.preprocessing import MinMaxScaler
 import json
 from ..utils import desribe_numeric_col
 from ..utils import impute_missing_values
+from ..utils import create_dummy_cols
 
 def basic_cleaning(df: pd.Dataframe) -> pd.Dataframe:
     df = df.copy()
@@ -85,6 +86,25 @@ def binning(data: pd.DataFrame) -> pd.Dataframe:
             'signup': 'group1'
             }
     data['bin_source'] = data['source'].map(mapping)
+    return data
+
+def onehot_encode(data: pd.DataFrame) -> pd.DataFrame:
+    data = data.drop(["lead_id", "customer_code", "date_part"], axis=1)
+
+    cat_cols = ["customer_group", "onboarding", "bin_source", "source"]
+    cat_vars = data[cat_cols]
+
+    other_vars = data.drop(cat_cols, axis=1)
+
+    for col in cat_vars:
+        cat_vars[col] = cat_vars[col].astype("category")
+        cat_vars = create_dummy_cols(cat_vars, col)
+
+    data = pd.concat([other_vars, cat_vars], axis=1)
+
+    for col in data:
+        data[col] = data[col].astype("float64")
+    
     return data
 
 def preprocess_pipeline(df: pd.DataFrame,
