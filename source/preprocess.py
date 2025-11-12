@@ -87,3 +87,25 @@ def binning(data: pd.DataFrame) -> pd.Dataframe:
             }
     data['bin_source'] = data['source'].map(mapping)
     return data
+
+def preprocess_pipeline(df: pd.DataFrame,
+                        scaler_path: str = "./artifacts/minmax_scaler.joblib",
+                        save_gold_path: str = "./artifacts/train_data_gold.csv") -> pd.DataFrame:
+    data = df.copy()
+    #apply cleaning
+    data = basic_cleaning(data)
+    #apply splitting
+    cat_vars, cont_vars = split_cat_cont(data)
+    #handle outliers
+    cont_vars_cleaned = handle_outliers(cont_vars)
+    #impute missing
+    cat_vars_imputed, cont_vars_imputed = impute(cat_vars, cont_vars_cleaned)
+    #scale cont
+    cont_vars_scaled = scale(cont_vars_imputed, scaler_path=scaler_path)
+    #combine it together
+    combined = combine_and_document_drift(cont_vars_scaled, cat_vars_imputed)
+    #bin it
+    final = binning(combined)
+    #save gold data
+    final.to_csv(save_gold_path, index=False)
+    return final
