@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import joblib
 from sklearn.preprocessing import MinMaxScaler
+import json
 from ..utils import desribe_numeric_col
 from ..utils import impute_missing_values
 
@@ -60,5 +61,18 @@ def scale(cont_vars: pd.DataFrame, scaler_path):
 
     return cont_vars
 
+def combine_and_document_drift(cont_vars: pd.DataFrame, cat_vars: pd.Dataframe) -> pd.Dataframe:
+    #combining the data
+    cont_vars = cont_vars.reset_index(drop=True)
+    cat_vars = cat_vars.reset_index(drop=True)
+    data = pd.concat([cat_vars, cont_vars], axis=1)
 
+    #exporting data drift artifact
+    data_columns = list(data.columns)
+    with open('./artifacts/columns_drift.json','w+') as f:           
+        json.dump(data_columns,f)
+    
+    data.to_csv('./artifacts/training_data.csv', index=False)
+
+    return data
 
