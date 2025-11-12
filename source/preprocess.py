@@ -51,7 +51,6 @@ def impute(cat_vars: pd.DataFrame, cont_vars: pd.Dataframe):
 
     return cat_vars, cont_vars
 
-
 def scale(cont_vars: pd.DataFrame, scaler_path):
     scaler = MinMaxScaler()
     scaler.fit(cont_vars)
@@ -76,3 +75,15 @@ def combine_and_document_drift(cont_vars: pd.DataFrame, cat_vars: pd.Dataframe) 
 
     return data
 
+def binning(data: pd.DataFrame) -> pd.Dataframe:
+    data = data.copy()
+    data['bin_source'] = data['source']
+    values_list = ['li', 'organic','signup','fb']
+    data.loc[~data['source'].isin(values_list),'bin_source'] = 'Others'
+    mapping = {'li' : 'socials', 
+            'fb' : 'socials', 
+            'organic': 'group1', 
+            'signup': 'group1'
+            }
+    data['bin_source'] = data['source'].map(mapping)
+    return data
