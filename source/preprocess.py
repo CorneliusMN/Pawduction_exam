@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import joblib
+from sklearn.preprocessing import MinMaxScaler
 from ..utils import desribe_numeric_col
 from ..utils import impute_missing_values
 
@@ -47,6 +49,16 @@ def impute(cat_vars: pd.DataFrame, cont_vars: pd.Dataframe):
     cat_vars.apply(lambda x: pd.Series([x.count(), x.isnull().sum()], index = ['Count', 'Missing'])).T
 
     return cat_vars, cont_vars
+
+
+def scale(cont_vars: pd.DataFrame, scaler_path):
+    scaler = MinMaxScaler()
+    scaler.fit(cont_vars)
+
+    joblib.dump(value=scaler, filename=scaler_path)
+    cont_vars = pd.DataFrame(scaler.transform(cont_vars), columns=cont_vars.columns)
+
+    return cont_vars
 
 
 
