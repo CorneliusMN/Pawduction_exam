@@ -14,3 +14,13 @@ def basic_cleaning(df: pd.Dataframe) -> pd.Dataframe:
     df = df.dropna(subset=["lead_indicator", "lead_id"], axis = 0)
     df = df[df.source == "signup"]
     return df
+
+def split_cat_cont(df: pd.DataFrame):
+    vars = ["lead_id", "lead_indicator", "customer_group", "onboarding", "source", "customer_code"]
+    for col in vars:
+        df[col] = df[col].astype("object")
+    
+    cont_vars = df.loc[:, ((df.dtypes=="float64")|(df.dtypes=="int64"))]
+    cat_vars = df.loc[:, (df.dtypes=="object")]
+
+    return cat_vars, cont_vars
