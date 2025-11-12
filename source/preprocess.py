@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from ..utils import desribe_numeric_col
 
 def basic_cleaning(df: pd.Dataframe) -> pd.Dataframe:
     df = df.copy()
@@ -24,3 +25,9 @@ def split_cat_cont(df: pd.DataFrame):
     cat_vars = df.loc[:, (df.dtypes=="object")]
 
     return cat_vars, cont_vars
+
+def handle_outliers(cont_vars: pd.Dataframe) -> pd.DataFrame:
+    cont_vars_cleaned = cont_vars.apply(lambda x: x.clip(lower = (x.mean()-2*x.std()), upper = (x.mean()+2*x.std())))
+    outlier_summary = cont_vars_cleaned.apply(describe_numeric_col).T
+    outlier_summary.to_csv('./artifacts/outlier_summary.csv')
+    return cont_vars_cleaned
