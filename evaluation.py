@@ -23,10 +23,10 @@ def report_best_xgboost_and_accuracy(
     y_pred_train = model_grid.predict(X_train)
     y_pred_test = model_grid.predict(X_test)
     
-    accuracy_train = accuracy_score(y_train, y_pred_train)
-    accuracy_test = accuracy_score(y_test, y_pred_test)
+    acc_train = accuracy_score(y_train, y_pred_train)
+    acc_test = accuracy_score(y_test, y_pred_test)
     
-    return best_model_xgboost_params, accuracy_train, accuracy_test
+    return best_model_xgboost_params, acc_train, acc_test
 
 
 # XGBoost performance overview section cell 63 notebook
@@ -53,7 +53,7 @@ def save_columns_and_model_results(
     X_train,
     model_results,
     out_dir = "artifacts"):
-    """Save column list and model results to JSON files"""
+    """Save column list and model results to JSON files."""
     # Ensure output directory exists
     os.makedirs(out_dir, exist_ok=True)
     column_list_path = os.path.join(out_dir, "columns_list.json")
@@ -65,7 +65,7 @@ def save_columns_and_model_results(
     # Output path for the model results JSON
     model_results_path = os.path.join(out_dir, "model_results.json")
     with open(model_results_path, "w", encoding="utf-8") as results_file:
-        json.dump(model_results, model_results_path)
+        json.dump(model_results, results_file)
     
     return column_list_path, model_results_path
 
@@ -77,7 +77,7 @@ def model_selection(
     metric = "f1_score",
     ascending = False,
     max_results = 10):
-    """Return a Dataframe of runs for an experiment, sorted by a metric (f1_score by default)"""
+    """Return a Dataframe of runs for an experiment, sorted by a metric (f1_score by default)."""
     client = MlflowClient()
     experiment = client.get_experiment_by_name(experiment_name)
     if experiment is None:
@@ -95,7 +95,7 @@ def model_selection(
 # Getting experiment model results section cell 74 notebook
 
 def get_experiment_best_f1(experiment_name):
-    """Return the top run by f1 from the given experiment"""
+    """Return the top run by f1 from the given experiment."""
     experiment = mlflow.get_experiment_by_name(experiment_name)
     if experiment is None:
         raise ValueError(f"Experiment {experiment_name} not found.")
@@ -129,15 +129,15 @@ def load_results_and_print_best_model(results_path = "./artifacts/model_results.
 def get_production_model(model_name):
     """Load the latest production-ready model for a given name."""
     client = MlflowClient()
-    production_model = [model for model in client.search_model_versions(f"name='{model_name}'") if dict(model)["current_stage"] == "Production"]
-    production_model_exists = len(production_model) > 0
+    prod_model = [model for model in client.search_model_versions(f"name='{model_name}'") if dict(model)["current_stage"] == "Production"]
+    prod_model_exists = len(prod_model) > 0
     
-    if production_model_exists:
-        production_model_version = dict(production_model[0])["version"]
-        production_model_run_id = dict(production_model[0])["run_id"]
-        print("Production model name: ", model_name)
-        print("Production model version:" , production_model_version)
-        print("Production model run id:" , production_model_run_id)
+    if prod_model_exists:
+        prod_model_version = dict(prod_model[0])["version"]
+        prod_model_run_id = dict(prod_model[0])["run_id"]
+        print(f"Production model name: {model_name}.")
+        print(f"Production model version: {prod_model_version}.")
+        print(f"Production model run id: {prod_model_run_id}.")
     else:
         print("No model in production.")
 
@@ -146,24 +146,24 @@ def get_production_model(model_name):
 
 def compare_prod_and_best_trained(
     experiment_best,
-    production_model_exists,
-    production_model_run_id):
+    prod_model_exists,
+    prod_model_run_id):
     """Compare Production vs. best trained model (by f1_score) and decide run_id to register."""
     train_model_score = experiment_best["metrics.f1_score"]
     model_status = {}
     run_id = None
     
-    if production_model_exists:
-        data, details = mlflow.get_run(production_model_run_id)
-        production_model_score = data[1]["metrics.f1_score"]
+    if prod_model_exists:
+        data, details = mlflow.get_run(prod_model_run_id)
+        prod_model_score = data[1]["metrics.f1_score"]
         model_status["current"] = train_model_score
-        model_status["prod"] = production_model_score
-        if train_model_score > production_model_score:
+        model_status["prod"] = prod_model_score
+        if train_model_score > prod_model_score:
             run_id = experiment_best["run_id"]
     else:
         run_id = experiment_best["run_id"]
     
-    print(f"Registered model: {run_id}")
+    print(f"Registered model: {run_id}.")
     
     return run_id
 
@@ -176,12 +176,12 @@ def register_best_model(
     model_name):
     """Register a model from a run into the MLFlow Model Registry."""
     if run_id is not None:
-        print("Best model found: ", run_id)
+        print(f"Best model found: {run_id}.")
         model_uri = mlflow.get_artifact_uri(artifact_path=artifact_path, run_id = run_id)
-        model_registered = mlflow.register_model(model_uri=model_uri, name=model_name)
-        model_registered = dict(model_registered)
+        model_details = mlflow.register_model(model_uri=model_uri, name=model_name)
+        model_details = dict(model_details)
         
-        return model_registered
+        return model_details
     else:
         print("No run id is provided.")
         
@@ -199,7 +199,7 @@ def wait_for_development(
     while not status:
         model_version_details = dict(client.get_model_version(name=model_name, version=model_version))
         if model_version_details["current_stage"] == stage:
-            print(f"Transition completed to {stage}")
+            print(f"Transition completed to {stage}.")
             status = True
             break
         else:
@@ -211,14 +211,15 @@ def run_stage_transition(
     model_name,
     model_version):
     client = MlflowClient()
-    model_version_details = dict(client.get_model_version(name = model_name, version = model_version))
+    model_version_details = dict(client.get_model_version(name=model_name, version=model_version))
     model_status = True
     if model_version_details["current_stage"] != "Staging":
         client.transition_model_version_stage(
             name=model_name,
-            version=model_version, stage = "Staging",
+            version=model_version, 
+            stage="Staging",
             archive_existing_versions=True)
         model_status = wait_for_development(model_name, model_version, "Staging")
     else:
-        print("Model already in staging")
+        print("Model already in staging.")
     return model_status
