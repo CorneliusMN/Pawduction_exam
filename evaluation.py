@@ -1,11 +1,11 @@
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import os
 import json
+import time
+
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import mlflow
 from mlflow.tracking import MlflowClient
 import pandas as pd
-import time
-
 
 
 
