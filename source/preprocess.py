@@ -7,7 +7,23 @@ from sklearn.preprocessing import MinMaxScaler
 
 from ..utils import impute_missing_values
 
+def describe_numeric_col(x: pd.Series) -> pd.Series:
+    '''
+    Parameters:
+        x (pd.Series): Pandas col to describe.
+    Output:
+        y (pd.Series): Pandas series with descriptive stats. 
+    '''
+    return pd.Series(
+        [x.count(), x.isnull().sum(), x.mean(), x.min(), x.max()],
+        index=["Count", "Missing", "Mean", "Min", "Max"],
+    )
+
 def basic_cleaning(df: pd.Dataframe) -> pd.Dataframe:
+    '''
+    Takes a pandas Dataframe and drop columns.
+    Then performs string cleaning
+    '''
     df = df.copy()
     #dropping columns
     to_drop = ["is_active", "marketing_consent", "first_booking", "existing_customer", "last_seen", "domain", "country", "visited_learn_before_booking", "visited_faq"]
@@ -22,6 +38,9 @@ def basic_cleaning(df: pd.Dataframe) -> pd.Dataframe:
     return df
 
 def split_cat_cont(df: pd.DataFrame):
+    '''
+    Splits a pandas dataframe into categorical and continuous
+    '''
     vars = ["lead_id", "lead_indicator", "customer_group", "onboarding", "source", "customer_code"]
     for col in vars:
         df[col] = df[col].astype("object")
@@ -32,12 +51,18 @@ def split_cat_cont(df: pd.DataFrame):
     return cat_vars, cont_vars
 
 def handle_outliers(cont_vars: pd.Dataframe) -> pd.DataFrame:
+    '''
+    Handles outliers for cont vars and prints summary to csv
+    '''
     cont_vars_cleaned = cont_vars.apply(lambda x: x.clip(lower = (x.mean()-2*x.std()), upper = (x.mean()+2*x.std())))
     outlier_summary = cont_vars_cleaned.apply(describe_numeric_col).T
     outlier_summary.to_csv('./artifacts/outlier_summary.csv')
     return cont_vars_cleaned
 
 def impute(cat_vars: pd.DataFrame, cont_vars: pd.Dataframe):
+    '''
+    impute missing values using utils function
+    '''
     cat_missing_impute = cat_vars.mode(numeric_only=False, dropna=True)
     cat_missing_impute.to_csv("./artifacts/cat_missing_impute.csv")
 
@@ -52,6 +77,9 @@ def impute(cat_vars: pd.DataFrame, cont_vars: pd.Dataframe):
     return cat_vars, cont_vars
 
 def scale(cont_vars: pd.DataFrame, scaler_path):
+    '''
+    scale the cont vars
+    '''
     scaler = MinMaxScaler()
     scaler.fit(cont_vars)
 
@@ -61,6 +89,9 @@ def scale(cont_vars: pd.DataFrame, scaler_path):
     return cont_vars
 
 def combine_and_document_drift(cont_vars: pd.DataFrame, cat_vars: pd.Dataframe) -> pd.Dataframe:
+    '''
+    combine the cont vars and cat vars then dump into json for data drift comp
+    '''
     #combining the data
     cont_vars = cont_vars.reset_index(drop=True)
     cat_vars = cat_vars.reset_index(drop=True)
@@ -76,6 +107,9 @@ def combine_and_document_drift(cont_vars: pd.DataFrame, cat_vars: pd.Dataframe) 
     return data
 
 def binning(data: pd.DataFrame) -> pd.Dataframe:
+    '''
+    bin the data
+    '''
     data = data.copy()
     data['bin_source'] = data['source']
     values_list = ['li', 'organic','signup','fb']
@@ -88,28 +122,13 @@ def binning(data: pd.DataFrame) -> pd.Dataframe:
     data['bin_source'] = data['source'].map(mapping)
     return data
 
-def onehot_encode(data: pd.DataFrame) -> pd.DataFrame:
-    data = data.drop(["lead_id", "customer_code", "date_part"], axis=1)
-
-    cat_cols = ["customer_group", "onboarding", "bin_source", "source"]
-    cat_vars = data[cat_cols]
-
-    other_vars = data.drop(cat_cols, axis=1)
-
-    for col in cat_vars:
-        cat_vars[col] = cat_vars[col].astype("category")
-        cat_vars = create_dummy_cols(cat_vars, col)
-
-    data = pd.concat([other_vars, cat_vars], axis=1)
-
-    for col in data:
-        data[col] = data[col].astype("float64")
-    
-    return data
-
 def preprocess_pipeline(df: pd.DataFrame,
                         scaler_path: str = "./artifacts/minmax_scaler.joblib",
                         save_gold_path: str = "./artifacts/train_data_gold.csv") -> pd.DataFrame:
+    '''
+    takes raw data and runs all above functions
+    returns a csv with the gold data
+    '''
     data = df.copy()
     #apply cleaning
     data = basic_cleaning(data)
