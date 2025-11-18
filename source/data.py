@@ -1,8 +1,10 @@
 import datetime
+import json
 
 import pandas as pd
 import subprocess
 import argparse
+import mlflow
 
 from config import RAW_DATA_DIR
 
@@ -30,3 +32,33 @@ max_date = (
     if args.max_date 
     else pd.to_datetime(datetime.datetime.now().date()).date()
 )
+
+# Start MLFlow and log parameters
+with mlflow.start_run():
+    mlflow.log_param("min_date", str(min_date))
+    mlflow.log_param("max_date", str(max_date))
+
+    # Filter data to specified date range
+    def filter_by_date(df, min_date, max_date):
+        df = df.copy()
+        df["date_part"] = pd.to_datetime(df["date_part"]).dt.date
+        return df[(df["date_part"] >= min_date) & (df["date_part"] <= max_date)]
+    filtered_data = filter_by_date(data, min_date, max_date)
+
+    # Compute the actual min/max in the filtered dataset
+    actual_min = filtered_data["date_part"].min()
+    actual_max = filtered_data["date_part"].max()
+
+    date_limits = {
+        "requested_min_date": str(min_date),
+        "requested_max_date": str(max_date),
+        "actual_min_date": str(actual_min),
+        "actual_max_date": str(actual_max),
+    }
+
+    # Save date artifact
+    with open("./artifacts/date_limits.json", "w") as f:
+            json.dump(date_limits, f)
+
+    # Log date artifact in MLFlow
+    mlflow.log_artifact("./artifacts/date_limits.json")
