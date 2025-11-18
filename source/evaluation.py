@@ -203,7 +203,7 @@ def register_best_model(
 
 # Deploy section cell 86 notebook
 
-def wait_for_development(
+def wait_for_deployment(
     model_name,
     model_version,
     stage = "Staging"):
