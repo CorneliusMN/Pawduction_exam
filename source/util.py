@@ -1,3 +1,9 @@
+import time
+
+from mlflow.tracking.client import MlflowClient
+from mlflow.entities.model_registry.model_version_status import ModelVersionStatus
+from mlflow.tracking.client import MlflowClient
+
 import pandas as pd
 
 def describe_numeric_col(x): 
@@ -35,3 +41,20 @@ def create_dummy_cols(df, col):
     new_df = pd.concat([df, df_dummies], axis=1)
     new_df = new_df.drop(col, axis=1)
     return new_df
+
+def wait_until_ready(model_name, model_version): 
+    """
+    Waits until the specified MLflow model version reaches the READY status, 
+    checking periodically.
+    """
+    client = MlflowClient()
+    for _ in range(10):
+        model_version_details = client.get_model_version(
+          name=model_name,
+          version=model_version,
+        )
+        status = ModelVersionStatus.from_string(model_version_details.status)
+        print(f"Model status: {ModelVersionStatus.to_string(status)}")
+        if status == ModelVersionStatus.READY:
+            break
+        time.sleep(1)
