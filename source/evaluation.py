@@ -149,6 +149,7 @@ def get_production_model(model_name):
         print(f"Production model name: {model_name}.")
         print(f"Production model version: {prod_model_version}.")
         print(f"Production model run id: {prod_model_run_id}.")
+        return prod_model_exists, prod_model_run_id
     else:
         print("No model in production.")
 
