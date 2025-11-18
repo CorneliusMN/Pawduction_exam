@@ -13,17 +13,11 @@ import pandas as pd
 
 def report_best_xgboost_and_accuracy(
     model_grid,
-    X_train,
-    y_train,
     X_test,
     y_test):
-    """Return best XGBoost parameters and train/test accuracy."""
+    """Return best XGBoost parameters and test accuracy."""
     best_model_xgboost_params = model_grid.best_params_
-    
-    y_pred_train = model_grid.predict(X_train)
     y_pred_test = model_grid.predict(X_test)
-    
-    acc_train = accuracy_score(y_train, y_pred_train)
     acc_test = accuracy_score(y_test, y_pred_test)
     
     return best_model_xgboost_params, acc_test
@@ -32,13 +26,11 @@ def report_best_xgboost_and_accuracy(
 # XGBoost performance overview
 
 def confusion_matrix_and_classification_report(
-    y_train,
-    y_pred_train,
     y_test,
     y_pred_test):
     """
     Produce a performance overview consisting of confusion matrix
-    and classification report for train and test.
+    and classification report for test.
     """
     # # Train metrics
     # conf_mat_train = confusion_matrix(y_train, y_pred_train)
@@ -247,7 +239,7 @@ def run_stage_transition(
             version=model_version, 
             stage="Staging",
             archive_existing_versions=True)
-        model_status = wait_for_development(model_name, model_version, "Staging")
+        model_status = wait_for_deployment(model_name, model_version, "Staging")
     else:
         print("Model already in staging.")
     
