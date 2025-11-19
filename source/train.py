@@ -1,8 +1,12 @@
 import datetime
 
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from pathlib import Path
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
+from scipy.stats import uniform, randint
 import mlflow
+from xgboost import XGBRFClassifier
+import dvc.api
 
 from config import PROCESSED_DATA_DIR
 
@@ -53,3 +57,4 @@ with mlflow.start_run(experiment_id=experiment_id, run_name="xgboost_rf") as run
     
     # Log data version from DVC
     mlflow.log_param("data_version", dvc.api.get_url(PROCESSED_DATA_DIR / "dataset.csv"))
+
