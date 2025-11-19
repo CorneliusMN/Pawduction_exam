@@ -1,14 +1,18 @@
-import datetime
-
 import pandas as pd
 from pathlib import Path
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from scipy.stats import uniform, randint
-import mlflow
+import datetime
+
 from xgboost import XGBRFClassifier
+from sklearn.linear_model import LogisticRegression
+
+import mlflow
 import dvc.api
+import joblib
 
 from config import PROCESSED_DATA_DIR
+from wrappers import lr_wrapper 
 
 # Load processed data
 data = pd.read_csv(PROCESSED_DATA_DIR / "dataset.csv")
@@ -58,3 +62,31 @@ with mlflow.start_run(experiment_id=experiment_id, run_name="xgboost_rf") as run
     # Log data version from DVC
     mlflow.log_param("data_version", dvc.api.get_url(PROCESSED_DATA_DIR / "dataset.csv"))
 
+# Track Logistic Regression with MLFlow
+with mlflow.start_run(experiment_id=experiment_id, run_name="logistic_regression") as run:
+    
+    # Enable sklearn autologging
+    mlflow.sklearn.autolog(log_input_examples=True, log_models=True)
+    
+    lr_model = LogisticRegression()
+    param_dist_lr = {
+        "solver": ["newton-cg", "lbfgs", "liblinear", "sag", "saga"],
+        "penalty": ["none", "l1", "l2", "elasticnet"],
+        "C": [100, 10, 1.0, 0.1, 0.01]
+    }
+    
+    # Hyperparameter search
+    grid_lr = RandomizedSearchCV(lr_model, param_distributions=param_dist_lr, verbose=3, n_iter=10, cv=3)
+    grid_lr.fit(X_train, y_train)
+    
+    best_lr_model = grid_lr.best_estimator_
+    
+    # Save the model locally
+    lr_model_path = Path("./artifacts/lead_model_lr.pkl")
+    joblib.dump(best_lr_model, lr_model_path)
+    
+    # Log data version from DVC
+    mlflow.log_param("data_version", dvc.api.get_url(PROCESSED_DATA_DIR / "dataset.csv"))
+    
+    # Log as pyfunc model for inference
+    mlflow.pyfunc.log_model("model", python_model=lr_wrapper(best_lr_model))
