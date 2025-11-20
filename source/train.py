@@ -25,6 +25,25 @@ def create_dummy_cols(df: pd.DataFrame, col: Iterable[str]) -> pd.DataFrame:
     new_df = new_df.drop(col, axis=1)
     return new_df
 
+def onehot_encode(data: pd.DataFrame) -> pd.DataFrame:
+    data = data.drop(["lead_id", "customer_code", "date_part"], axis=1)
+
+    cat_cols = ["customer_group", "onboarding", "bin_source", "source"]
+    cat_vars = data[cat_cols]
+
+    other_vars = data.drop(cat_cols, axis=1)
+
+    for col in cat_vars:
+        cat_vars[col] = cat_vars[col].astype("category")
+        cat_vars = create_dummy_cols(cat_vars, col)
+
+    data = pd.concat([other_vars, cat_vars], axis=1)
+
+    for col in data:
+        data[col] = data[col].astype("float64")
+    
+    return data
+
 # Load processed data
 data = pd.read_csv(PROCESSED_DATA_DIR / "dataset.csv")
 print(f"Training data length: {len(data)}")
