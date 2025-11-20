@@ -1,9 +1,3 @@
-import time
-
-from mlflow.tracking.client import MlflowClient
-from mlflow.entities.model_registry.model_version_status import ModelVersionStatus
-from mlflow.tracking.client import MlflowClient
-
 def impute_missing_values(x, method="mean"):
     """
     Imputes the mean/median for numeric columns or the mode for other types.
@@ -16,20 +10,3 @@ def impute_missing_values(x, method="mean"):
     else:
         x = x.fillna(x.mode()[0])
     return x
-
-def wait_until_ready(model_name, model_version): 
-    """
-    Waits until the specified MLflow model version reaches the READY status, 
-    checking periodically.
-    """
-    client = MlflowClient()
-    for _ in range(10):
-        model_version_details = client.get_model_version(
-          name=model_name,
-          version=model_version,
-        )
-        status = ModelVersionStatus.from_string(model_version_details.status)
-        print(f"Model status: {ModelVersionStatus.to_string(status)}")
-        if status == ModelVersionStatus.READY:
-            break
-        time.sleep(1)
