@@ -4,21 +4,6 @@ from mlflow.tracking.client import MlflowClient
 from mlflow.entities.model_registry.model_version_status import ModelVersionStatus
 from mlflow.tracking.client import MlflowClient
 
-import pandas as pd
-
-def describe_numeric_col(x): 
-    """
-    Calculates various descriptive stats for a numeric column in a dataframe.
-    Parameters:
-        x (pd.Series): Pandas col to describe.
-    Output:
-        y (pd.Series): Pandas series with descriptive stats. 
-    """
-    return pd.Series(
-        [x.count(), x.isnull().count(), x.mean(), x.min(), x.max()],
-        index=["Count", "Missing", "Mean", "Min", "Max"]
-    )
-
 def impute_missing_values(x, method="mean"):
     """
     Imputes the mean/median for numeric columns or the mode for other types.
