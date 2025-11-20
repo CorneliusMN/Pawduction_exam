@@ -39,7 +39,10 @@ with mlflow.start_run():
     mlflow.log_param("max_date", str(max_date))
 
     # Filter data to specified date range
-    def filter_by_date(df, min_date, max_date):
+    def filter_by_date(df: pd.DataFrame, min_date: datetime.date, max_date: datetime.date) -> pd.DataFrame:
+        """
+        Takes data frame and min/ max dates and returns a data frame filtered for the specified date range
+        """
         df = df.copy()
         df["date_part"] = pd.to_datetime(df["date_part"]).dt.date
         return df[(df["date_part"] >= min_date) & (df["date_part"] <= max_date)]
