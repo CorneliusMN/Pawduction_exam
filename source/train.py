@@ -25,6 +25,10 @@ def create_dummy_cols(df: pd.DataFrame, col: str) -> pd.DataFrame:
     return new_df
 
 def onehot_encode(data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Drops unnecessary columns and applies one-hot encoding to specified categorical features.
+    Converts all resulting columns to float64 for modeling compatibility.
+    """
     data = data.drop(["lead_id", "customer_code", "date_part"], axis=1)
 
     cat_cols = ["customer_group", "onboarding", "bin_source", "source"]
