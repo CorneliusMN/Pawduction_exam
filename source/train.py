@@ -3,6 +3,7 @@ from pathlib import Path
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from scipy.stats import uniform, randint
 import datetime
+from typing import Iterable
 
 from xgboost import XGBRFClassifier
 from sklearn.linear_model import LogisticRegression
@@ -13,6 +14,16 @@ import joblib
 
 from config import PROCESSED_DATA_DIR
 from wrappers import lr_wrapper 
+
+def create_dummy_cols(df: pd.DataFrame, col: Iterable[str]) -> pd.DataFrame:
+    """
+    Converts a categorical column into dummy/one-hot encoded columns 
+    and drops the original column.
+    """
+    df_dummies = pd.get_dummies(df[col], prefix=col, drop_first=True)
+    new_df = pd.concat([df, df_dummies], axis=1)
+    new_df = new_df.drop(col, axis=1)
+    return new_df
 
 # Load processed data
 data = pd.read_csv(PROCESSED_DATA_DIR / "dataset.csv")
