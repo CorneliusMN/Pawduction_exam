@@ -3,7 +3,6 @@ from pathlib import Path
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from scipy.stats import uniform, randint
 import datetime
-from typing import Iterable
 
 from xgboost import XGBRFClassifier
 from sklearn.linear_model import LogisticRegression
@@ -12,10 +11,10 @@ import mlflow
 import dvc.api
 import joblib
 
-from config import PROCESSED_DATA_DIR
+from config import TRAIN_GOLD_FILE
 from wrappers import lr_wrapper 
 
-def create_dummy_cols(df: pd.DataFrame, col: Iterable[str]) -> pd.DataFrame:
+def create_dummy_cols(df: pd.DataFrame, col: str) -> pd.DataFrame:
     """
     Converts a categorical column into dummy/one-hot encoded columns 
     and drops the original column.
@@ -44,8 +43,45 @@ def onehot_encode(data: pd.DataFrame) -> pd.DataFrame:
     
     return data
 
+def train_model(model_name: str, experiment_id: str, run_name: str, autolog_type: str, param_dist: dict, 
+                X_train: pd.DataFrame, y_train: pd.DataFrame, model_path: Path):
+    """
+    Takes model, random grid search parameters and train data and saves best model while tracking parameters in MLFlow
+
+    model_name: XGBRFClassifier / LogisticRegression
+    experiment_id: experiment_id
+    run_name: xgboost_rf / logistic_regression
+    autolog_type: xgboost / sklearn
+    param_dist: dict of parameters
+    X_train: df
+    y_train: df
+    model_path: Path where best model is saved locally
+    """
+    with mlflow.start_run(experiment_id=experiment_id, run_name=run_name) as run:
+    
+        # Enable autologging
+        getattr(mlflow, autolog_type).autolog()
+        
+        model = model_name(random_state=42)
+
+        # Hyperparameter search
+        grid = RandomizedSearchCV(model, param_distributions=param_dist, verbose=3, n_iter=10, cv=3)
+        grid.fit(X_train, y_train)
+        
+        best_model = grid.best_estimator_
+        
+        # Save the model locally
+        best_model.save_model(str(model_path))
+        
+        # Log data version from DVC
+        mlflow.log_param("data_version", dvc.api.get_url(TRAIN_GOLD_FILE))
+
+        # Log as pyfunc model for inference for LR model
+        if model_name == "LogisticRegression":
+            mlflow.pyfunc.log_model("model", python_model=lr_wrapper(best_model))
+
 # Load processed data
-data = pd.read_csv(PROCESSED_DATA_DIR / "dataset.csv")
+data = pd.read_csv(TRAIN_GOLD_FILE)
 print(f"Training data length: {len(data)}")
 
 y = data["lead_indicator"]
