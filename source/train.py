@@ -43,10 +43,12 @@ def onehot_encode(data: pd.DataFrame) -> pd.DataFrame:
     
     return data
 
-def train_model(model_name: str, experiment_id: str, run_name: str, autolog_type: str, param_dist: dict, 
+def train_model(model_name: str, experiment_id: str, run_name: str, 
+                autolog_type: str, param_dist: dict, 
                 X_train: pd.DataFrame, y_train: pd.DataFrame, model_path: Path):
     """
-    Takes model, random grid search parameters and train data and saves best model while tracking parameters in MLFlow
+    Takes model, random grid search parameters and train data 
+    and saves best model while tracking parameters in MLFlow
 
     model_name: XGBRFClassifier / LogisticRegression
     experiment_id: experiment_id
@@ -92,8 +94,12 @@ def train_model(model_name: str, experiment_id: str, run_name: str, autolog_type
 data = pd.read_csv(TRAIN_GOLD_FILE)
 print(f"Training data length: {len(data)}")
 
-y = data["lead_indicator"]
-X = data.drop(["lead_indicator"], axis=1)
+# Transform data with onehot-encoder
+onehot_encoded_data = onehot_encode(data)
+
+# Split target variable and features
+y = onehot_encoded_data["lead_indicator"]
+X = onehot_encoded_data.drop(["lead_indicator"], axis=1)
 
 # Split train/test data
 X_train, X_test, y_train, y_test = train_test_split(
@@ -107,7 +113,7 @@ mlflow.set_experiment(experiment_name)
 experiment = mlflow.get_experiment_by_name(experiment_name)
 experiment_id = experiment.experiment_id
 
-#Define model parameters
+# Define model parameters
 param_dist_xgb = {
         "learning_rate": uniform(1e-2, 3e-1),
         "min_split_loss": uniform(0, 10),
