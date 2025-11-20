@@ -1,4 +1,6 @@
-def impute_missing_values(x, method="mean"):
+import pandas as pd
+
+def impute_missing_values(x: pd.Series, method: str = "mean") -> pd.Series:
     """
     Imputes the mean/median for numeric columns or the mode for other types.
     Parameters:
