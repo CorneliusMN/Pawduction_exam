@@ -6,14 +6,14 @@ import subprocess
 import argparse
 import mlflow
 
-from config import RAW_DATA_DIR
+from config import DATE_LIMITS_FILE, RAW_DATA_FILE
 
 # Pulling data from DVC
 subprocess.run(["dvc", "pull"], check=True)
 
 # Loading data locally
 print("Loading training data")
-data = pd.read_csv(RAW_DATA_DIR / "raw_data.csv")
+data = pd.read_csv(RAW_DATA_FILE)
 print("Total rows:", len(data)) #data.count()
 
 # Parameterize min and max date
@@ -60,8 +60,8 @@ with mlflow.start_run():
     }
 
     # Save date artifact
-    with open("./artifacts/date_limits.json", "w") as f:
+    with open(DATE_LIMITS_FILE, "w") as f:
             json.dump(date_limits, f)
 
     # Log date artifact in MLFlow
-    mlflow.log_artifact("./artifacts/date_limits.json")
+    mlflow.log_artifact(DATE_LIMITS_FILE)
