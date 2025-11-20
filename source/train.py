@@ -11,7 +11,7 @@ import mlflow
 import dvc.api
 import joblib
 
-from config import TRAIN_GOLD_FILE
+from config import TRAIN_GOLD_FILE, XGBOOST_MODEL_FILE, LR_MODEL_FILE
 from wrappers import lr_wrapper 
 
 def create_dummy_cols(df: pd.DataFrame, col: str) -> pd.DataFrame:
@@ -57,12 +57,20 @@ def train_model(model_name: str, experiment_id: str, run_name: str, autolog_type
     y_train: df
     model_path: Path where best model is saved locally
     """
+
+    # Map string to actual class
+    model_classes = {
+        "XGBRFClassifier": XGBRFClassifier,
+        "LogisticRegression": LogisticRegression
+    }
+    model_class = model_classes[model_name]
+
     with mlflow.start_run(experiment_id=experiment_id, run_name=run_name) as run:
     
         # Enable autologging
         getattr(mlflow, autolog_type).autolog()
         
-        model = model_name(random_state=42)
+        model = model_class(random_state=42)
 
         # Hyperparameter search
         grid = RandomizedSearchCV(model, param_distributions=param_dist, verbose=3, n_iter=10, cv=3)
@@ -70,15 +78,15 @@ def train_model(model_name: str, experiment_id: str, run_name: str, autolog_type
         
         best_model = grid.best_estimator_
         
-        # Save the model locally
-        best_model.save_model(str(model_path))
-        
-        # Log data version from DVC
-        mlflow.log_param("data_version", dvc.api.get_url(TRAIN_GOLD_FILE))
-
-        # Log as pyfunc model for inference for LR model
+        # Save the model locally and log as pyfunc model for inference 
         if model_name == "LogisticRegression":
             mlflow.pyfunc.log_model("model", python_model=lr_wrapper(best_model))
+            joblib.dump(best_model, model_path)
+        else:
+            best_model.save_model(str(model_path))
+
+        # Log data version from DVC
+        mlflow.log_param("data_version", dvc.api.get_url(TRAIN_GOLD_FILE))
 
 # Load processed data
 data = pd.read_csv(TRAIN_GOLD_FILE)
@@ -99,14 +107,8 @@ mlflow.set_experiment(experiment_name)
 experiment = mlflow.get_experiment_by_name(experiment_name)
 experiment_id = experiment.experiment_id
 
-# Track XGBoost with MLflow
-with mlflow.start_run(experiment_id=experiment_id, run_name="xgboost_rf") as run:
-    
-    # Enable XGBoost autologging
-    mlflow.xgboost.autolog()
-    
-    model = XGBRFClassifier(random_state=42)
-    param_dist = {
+#Define model parameters
+param_dist_xgb = {
         "learning_rate": uniform(1e-2, 3e-1),
         "min_split_loss": uniform(0, 10),
         "max_depth": randint(3, 10),
@@ -115,44 +117,14 @@ with mlflow.start_run(experiment_id=experiment_id, run_name="xgboost_rf") as run
         "eval_metric": ["aucpr", "error"]
     }
 
-    # Hyperparameter search
-    grid_xgb = RandomizedSearchCV(model, param_distributions=param_dist, verbose=3, n_iter=10, cv=3)
-    grid_xgb.fit(X_train, y_train)
-    
-    best_xgb_model = grid_xgb.best_estimator_
-    
-    # Save the model locally
-    xgb_model_path = Path("./artifacts/lead_model_xgboost.json")
-    best_xgb_model.save_model(str(xgb_model_path))
-    
-    # Log data version from DVC
-    mlflow.log_param("data_version", dvc.api.get_url(PROCESSED_DATA_DIR / "dataset.csv"))
-
-# Track Logistic Regression with MLFlow
-with mlflow.start_run(experiment_id=experiment_id, run_name="logistic_regression") as run:
-    
-    # Enable sklearn autologging
-    mlflow.sklearn.autolog(log_input_examples=True, log_models=True)
-    
-    lr_model = LogisticRegression()
-    param_dist_lr = {
+param_dist_lr = {
         "solver": ["newton-cg", "lbfgs", "liblinear", "sag", "saga"],
         "penalty": ["none", "l1", "l2", "elasticnet"],
         "C": [100, 10, 1.0, 0.1, 0.01]
     }
-    
-    # Hyperparameter search
-    grid_lr = RandomizedSearchCV(lr_model, param_distributions=param_dist_lr, verbose=3, n_iter=10, cv=3)
-    grid_lr.fit(X_train, y_train)
-    
-    best_lr_model = grid_lr.best_estimator_
-    
-    # Save the model locally
-    lr_model_path = Path("./artifacts/lead_model_lr.pkl")
-    joblib.dump(best_lr_model, lr_model_path)
-    
-    # Log data version from DVC
-    mlflow.log_param("data_version", dvc.api.get_url(PROCESSED_DATA_DIR / "dataset.csv"))
-    
-    # Log as pyfunc model for inference
-    mlflow.pyfunc.log_model("model", python_model=lr_wrapper(best_lr_model))
+
+# Train XGBoost model
+train_model("XGBRFClassifier", experiment_id, "xgboost_rf", "xgboost", param_dist_xgb, X_train, y_train, XGBOOST_MODEL_FILE)
+
+# Train LogisticRegression model
+train_model("LogisticRegression", experiment_id, "logistic_regression", "sklearn", param_dist_lr, X_train, y_train, LR_MODEL_FILE)
