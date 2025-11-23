@@ -3,18 +3,20 @@ import json
 import time
 
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.model_selection import RandomizedSearchCV
 import mlflow
 from mlflow.tracking import MlflowClient
 import pandas as pd
+import numpy as np
 
 
 
 # Model test accuracy
 
 def report_best_xgboost_and_accuracy(
-    model_grid,
-    X_test,
-    y_test):
+    model_grid: RandomizedSearchCV,
+    X_test: pd.DataFrame,
+    y_test: pd.Series) -> tuple[dict, float]:
     """Return best XGBoost parameters and test accuracy."""
     best_model_xgboost_params = model_grid.best_params_
     y_pred_test = model_grid.predict(X_test)
@@ -26,8 +28,8 @@ def report_best_xgboost_and_accuracy(
 # XGBoost performance overview
 
 def confusion_matrix_and_classification_report(
-    y_test,
-    y_pred_test):
+    y_test: pd.Series,
+    y_pred_test: pd.Series) -> tuple[np.ndarray, str]:
     """
     Produce a performance overview consisting of confusion matrix
     and classification report for test.
@@ -46,9 +48,9 @@ def confusion_matrix_and_classification_report(
 # Save columns and model results
 
 def save_columns_and_model_results(
-    X_train,
-    model_results,
-    out_dir = "artifacts"):
+    X_train: pd.DataFrame,
+    model_results: dict,
+    out_dir: str = "artifacts") -> tuple[str, str]:
     """Save column list and model results to JSON files."""
     # Ensure output directory exists
     os.makedirs(out_dir, exist_ok=True)
@@ -70,10 +72,10 @@ def save_columns_and_model_results(
 # Model selection
 
 def model_selection(
-    experiment_name,
-    metric="f1_score",
-    ascending=False,
-    max_results=10):
+    experiment_name: str,
+    metric: str = "f1_score",
+    ascending: bool = False,
+    max_results: int = 10) -> pd.DataFrame:
     """
     Return a Dataframe of runs for an experiment,
     sorted by a metric (f1_score by default).
@@ -94,7 +96,7 @@ def model_selection(
 
 # Getting experiment model results
 
-def get_experiment_best_f1(experiment_name):
+def get_experiment_best_f1(experiment_name: str) -> pd.Series:
     """Return the top run by f1 from the given experiment."""
     experiment = mlflow.get_experiment_by_name(experiment_name)
     if experiment is None:
@@ -109,7 +111,7 @@ def get_experiment_best_f1(experiment_name):
     return experiment_best
 
 
-def load_results_and_print_best_model(results_path = "./artifacts/model_results.json"):
+def load_results_and_print_best_model(results_path: str = "./artifacts/model_results.json") -> str:
     """
     Load ./artifacts/model_results.json, build a DataFrame
     of weighted averages, and print the best model by f1-score.
@@ -127,7 +129,7 @@ def load_results_and_print_best_model(results_path = "./artifacts/model_results.
 
 # Get production model
 
-def get_production_model(model_name):
+def get_production_model(model_name: str) -> tuple[bool, str | None]:
     """Load the latest production-ready model for a given name."""
     client = MlflowClient()
     prod_model = [model for model in
@@ -150,9 +152,9 @@ def get_production_model(model_name):
 # Here model_status is not used
 
 def compare_prod_and_best_trained(
-    experiment_best,
-    prod_model_exists,
-    prod_model_run_id):
+    experiment_best: pd.Series,
+    prod_model_exists: bool,
+    prod_model_run_id: str | None) -> str | None:
     """
     Compare Production vs. best trained model
     (by f1_score) and decide run_id to register.
@@ -179,9 +181,9 @@ def compare_prod_and_best_trained(
 # Register best model
 
 def register_best_model(
-    run_id,
-    artifact_path,
-    model_name):
+    run_id: str | None,
+    artifact_path: str,
+    model_name: str) -> dict | None:
     """Register a model from a run into the MLFlow Model Registry."""
     if run_id is not None:
         print(f"Best model found: {run_id}.")
@@ -197,9 +199,9 @@ def register_best_model(
 # Deploy
 
 def wait_for_deployment(
-    model_name,
-    model_version,
-    stage = "Staging"):
+    model_name: str,
+    model_version: int,
+    stage: str = "Staging") -> bool:
     """Wait until the given model version reaches the target stage."""
     client = MlflowClient()
     status = False
@@ -222,8 +224,8 @@ def wait_for_deployment(
 
 
 def run_stage_transition(
-    model_name,
-    model_version):
+    model_name: str,
+    model_version: str) -> bool:
     client = MlflowClient()
     model_version_details = dict(
         client.get_model_version(
