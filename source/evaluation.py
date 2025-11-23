@@ -125,7 +125,7 @@ def load_results_and_print_best_model(results_path = "./artifacts/model_results.
     return best_model
 
 
-# Get production model section cell 81 notebook
+# Get production model
 
 def get_production_model(model_name):
     """Load the latest production-ready model for a given name."""
@@ -146,8 +146,8 @@ def get_production_model(model_name):
         print("No model in production.")
 
 
-# Compare prod and best trained model section cell 83 notebook
-# Here model_status is not really used
+# Compare prod and best trained model
+# Here model_status is not used
 
 def compare_prod_and_best_trained(
     experiment_best,
@@ -176,7 +176,7 @@ def compare_prod_and_best_trained(
     return run_id
 
 
-# Register best model section cell 85 notebook
+# Register best model
 
 def register_best_model(
     run_id,
@@ -194,7 +194,7 @@ def register_best_model(
         return None
 
 
-# Deploy section cell 86 notebook
+# Deploy
 
 def wait_for_deployment(
     model_name,
