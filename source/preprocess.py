@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
-from utils import impute_missing_values
+from util import impute_missing_values
 from config import OUTLIER_SUMMARY_FILE, CAT_MISSING_IMPUTE_FILE, SCALER_FILE, COLUMNS_DRIFT_FILE, TRAINING_DATA_FILE, TRAIN_GOLD_FILE
 
 def describe_numeric_col(x: pd.Series) -> pd.Series:
@@ -20,7 +20,7 @@ def describe_numeric_col(x: pd.Series) -> pd.Series:
         index=["Count", "Missing", "Mean", "Min", "Max"],
     )
 
-def basic_cleaning(df: pd.Dataframe) -> pd.Dataframe:
+def basic_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     '''
     Takes a pandas Dataframe and drop columns.
     Then performs string cleaning
@@ -51,7 +51,7 @@ def split_cat_cont(df: pd.DataFrame):
 
     return cat_vars, cont_vars
 
-def handle_outliers(cont_vars: pd.Dataframe) -> pd.DataFrame:
+def handle_outliers(cont_vars: pd.DataFrame) -> pd.DataFrame:
     '''
     Handles outliers for cont vars and prints summary to csv
     '''
@@ -60,7 +60,7 @@ def handle_outliers(cont_vars: pd.Dataframe) -> pd.DataFrame:
     outlier_summary.to_csv(OUTLIER_SUMMARY_FILE)
     return cont_vars_cleaned
 
-def impute(cat_vars: pd.DataFrame, cont_vars: pd.Dataframe):
+def impute(cat_vars: pd.DataFrame, cont_vars: pd.DataFrame):
     '''
     impute missing values using utils function
     '''
@@ -89,7 +89,7 @@ def scale(cont_vars: pd.DataFrame):
 
     return cont_vars
 
-def combine_and_document_drift(cont_vars: pd.DataFrame, cat_vars: pd.Dataframe) -> pd.Dataframe:
+def combine_and_document_drift(cont_vars: pd.DataFrame, cat_vars: pd.DataFrame) -> pd.DataFrame:
     '''
     combine the cont vars and cat vars then dump into json for data drift comp
     '''
@@ -107,7 +107,7 @@ def combine_and_document_drift(cont_vars: pd.DataFrame, cat_vars: pd.Dataframe) 
 
     return data
 
-def binning(data: pd.DataFrame) -> pd.Dataframe:
+def binning(data: pd.DataFrame) -> pd.DataFrame:
     '''
     bin the data
     '''
@@ -146,3 +146,4 @@ def preprocess_pipeline(df: pd.DataFrame) -> pd.DataFrame:
     #save gold data
     final.to_csv(TRAIN_GOLD_FILE, index=False)
     return final
+
