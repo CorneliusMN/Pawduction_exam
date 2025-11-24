@@ -147,3 +147,6 @@ def preprocess_pipeline(df: pd.DataFrame) -> pd.DataFrame:
     final.to_csv(TRAIN_GOLD_FILE, index=False)
     return final
 
+if __name__ == "__main__":
+    df = pd.read_csv(TRAINING_DATA_FILE)
+    preprocess_pipeline(df)
