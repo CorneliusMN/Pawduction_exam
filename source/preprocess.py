@@ -28,7 +28,7 @@ def basic_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     #dropping columns
     to_drop = ["is_active", "marketing_consent", "first_booking", "existing_customer", "last_seen", "domain", "country", "visited_learn_before_booking", "visited_faq"]
-    df = df.drop(columns = [c for c in to_drop])
+    df = df.drop(columns = [c for c in to_drop], axis = 1)
 
     #do string cleaning
     for c in ["lead_indicator", "lead_id", "customer_code"]:
