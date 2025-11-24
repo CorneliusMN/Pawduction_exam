@@ -5,7 +5,8 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
-from ..utils import impute_missing_values
+from utils import impute_missing_values
+from config import OUTLIER_SUMMARY_FILE, CAT_MISSING_IMPUTE_FILE, SCALER_FILE, COLUMNS_DRIFT_FILE, TRAINING_DATA_FILE, TRAIN_GOLD_FILE
 
 def describe_numeric_col(x: pd.Series) -> pd.Series:
     '''
@@ -56,7 +57,7 @@ def handle_outliers(cont_vars: pd.Dataframe) -> pd.DataFrame:
     '''
     cont_vars_cleaned = cont_vars.apply(lambda x: x.clip(lower = (x.mean()-2*x.std()), upper = (x.mean()+2*x.std())))
     outlier_summary = cont_vars_cleaned.apply(describe_numeric_col).T
-    outlier_summary.to_csv('./artifacts/outlier_summary.csv')
+    outlier_summary.to_csv(OUTLIER_SUMMARY_FILE)
     return cont_vars_cleaned
 
 def impute(cat_vars: pd.DataFrame, cont_vars: pd.Dataframe):
@@ -64,7 +65,7 @@ def impute(cat_vars: pd.DataFrame, cont_vars: pd.Dataframe):
     impute missing values using utils function
     '''
     cat_missing_impute = cat_vars.mode(numeric_only=False, dropna=True)
-    cat_missing_impute.to_csv("./artifacts/cat_missing_impute.csv")
+    cat_missing_impute.to_csv(CAT_MISSING_IMPUTE_FILE)
 
     # Continuous variables missing values
     cont_vars = cont_vars.apply(impute_missing_values)
@@ -76,14 +77,14 @@ def impute(cat_vars: pd.DataFrame, cont_vars: pd.Dataframe):
 
     return cat_vars, cont_vars
 
-def scale(cont_vars: pd.DataFrame, scaler_path):
+def scale(cont_vars: pd.DataFrame):
     '''
     scale the cont vars
     '''
     scaler = MinMaxScaler()
     scaler.fit(cont_vars)
 
-    joblib.dump(value=scaler, filename=scaler_path)
+    joblib.dump(value=scaler, filename=SCALER_FILE)
     cont_vars = pd.DataFrame(scaler.transform(cont_vars), columns=cont_vars.columns)
 
     return cont_vars
@@ -99,10 +100,10 @@ def combine_and_document_drift(cont_vars: pd.DataFrame, cat_vars: pd.Dataframe) 
 
     #exporting data drift artifact
     data_columns = list(data.columns)
-    with open('./artifacts/columns_drift.json','w+') as f:           
+    with open(COLUMNS_DRIFT_FILE,'w+') as f:           
         json.dump(data_columns,f)
     
-    data.to_csv('./artifacts/training_data.csv', index=False)
+    data.to_csv(TRAINING_DATA_FILE, index=False)
 
     return data
 
@@ -122,9 +123,7 @@ def binning(data: pd.DataFrame) -> pd.Dataframe:
     data['bin_source'] = data['source'].map(mapping)
     return data
 
-def preprocess_pipeline(df: pd.DataFrame,
-                        scaler_path: str = "./artifacts/minmax_scaler.joblib",
-                        save_gold_path: str = "./artifacts/train_data_gold.csv") -> pd.DataFrame:
+def preprocess_pipeline(df: pd.DataFrame) -> pd.DataFrame:
     '''
     takes raw data and runs all above functions
     returns a csv with the gold data
@@ -139,11 +138,11 @@ def preprocess_pipeline(df: pd.DataFrame,
     #impute missing
     cat_vars_imputed, cont_vars_imputed = impute(cat_vars, cont_vars_cleaned)
     #scale cont
-    cont_vars_scaled = scale(cont_vars_imputed, scaler_path=scaler_path)
+    cont_vars_scaled = scale(cont_vars_imputed)
     #combine it together
     combined = combine_and_document_drift(cont_vars_scaled, cat_vars_imputed)
     #bin it
     final = binning(combined)
     #save gold data
-    final.to_csv(save_gold_path, index=False)
+    final.to_csv(TRAIN_GOLD_FILE, index=False)
     return final
