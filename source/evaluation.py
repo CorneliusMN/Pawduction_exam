@@ -85,10 +85,11 @@ def model_selection(
     if experiment is None:
         raise ValueError(f"Experiment {experiment_name} not found.")
     
+    order = "ASC" if ascending else "DESC"
     runs = mlflow.search_runs(
         experiment_ids=[experiment.experiment_id],
         max_results=max_results,
-        order_by=[f"metrics.{metric} {"ASC" if ascending else "DESC"}"]
+        order_by=[f"metrics.{metric} {order}"]
     )
     
     return runs
