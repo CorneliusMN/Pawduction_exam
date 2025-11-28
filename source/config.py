@@ -3,7 +3,7 @@ from pathlib import Path
 # Project root
 PROJ_ROOT = Path(__file__).resolve().parents[1] #goes up one level to parent directory from where config file is stored
 
-# Direcotries
+# Directories
 ARTIFACTS_DIR = PROJ_ROOT / "artifacts"
 DATA_DIR = PROJ_ROOT / "data"
 
