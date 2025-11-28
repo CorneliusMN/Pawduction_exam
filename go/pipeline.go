@@ -32,12 +32,16 @@ func Build(ctx context.Context) error {
 		WithDirectory("artifacts", client.Host().Directory("../artifacts")).
 		WithExec([]string{"python", "--version"})
 
+	fmt.Println("Initializing data loading")
 	data := python.WithExec([]string{"python", "source/data.py"})
 
+	fmt.Println("Initializing preprocessing")
 	preprocess := data.WithExec([]string{"python", "source/preprocess.py"})
 
+	fmt.Println("Initializing training")
 	train := preprocess.WithExec([]string{"python", "source/train.py"})
 
+	fmt.Println("Initializing evaluation")
 	evaluation := train.WithExec([]string{"python", "source/evaluate.py"})
 
 	_, err = evaluation.
@@ -54,5 +58,6 @@ func Build(ctx context.Context) error {
 		return err
 	}
 
+	fmt.Println("Pipeline complete")
 	return nil
 }
