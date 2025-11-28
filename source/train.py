@@ -32,7 +32,7 @@ def onehot_encode(data: pd.DataFrame) -> pd.DataFrame:
     data = data.drop(["lead_id", "customer_code", "date_part"], axis=1)
 
     cat_cols = ["customer_group", "onboarding", "bin_source", "source"]
-    cat_vars = data[cat_cols]
+    cat_vars = data[cat_cols].copy()
 
     other_vars = data.drop(cat_cols, axis=1)
 
@@ -74,7 +74,7 @@ def train_model(model_name: str, experiment_id: str, run_name: str,
     with mlflow.start_run(experiment_id=experiment_id, run_name=run_name) as run:
     
         # Enable autologging
-        getattr(mlflow, autolog_type).autolog()
+        getattr(mlflow, autolog_type).autolog(log_models=False)
         
         model = model_class(random_state=42)
 

@@ -3,6 +3,7 @@ all: setup
 
 DIRS = \
 	artifacts \
+	data \
 	mlruns \
 	mlruns/.trash
 
@@ -11,4 +12,10 @@ setup:
 	@mkdir -p $(DIRS)
 	@echo "Setup complete."
 
-.PHONY: all setup
+cleanup:
+	@echo "Cleaning up generated directories..."
+	@rm -rf $(DIRS)
+	@echo "Cleanup complete."
+
+#prevents name conflict with files, ensures that commands always run
+.PHONY: all setup cleanup
