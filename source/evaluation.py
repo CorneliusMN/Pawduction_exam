@@ -85,10 +85,11 @@ def model_selection(
     if experiment is None:
         raise ValueError(f"Experiment {experiment_name} not found.")
     
+    order = "ASC" if ascending else "DESC"
     runs = mlflow.search_runs(
         experiment_ids=[experiment.experiment_id],
         max_results=max_results,
-        order_by=[f"metrics.{metric} {"ASC" if ascending else "DESC"}"]
+        order_by=[f"metrics.{metric} {order}"]
     )
     
     return runs
@@ -161,11 +162,11 @@ def compare_prod_and_best_trained(
     """
     train_model_score = experiment_best["metrics.f1_score"]
     model_status = {}
-    run_id = None
+    run_id: str | None = None
     
-    if prod_model_exists:
-        data, details = mlflow.get_run(prod_model_run_id)
-        prod_model_score = data[1]["metrics.f1_score"]
+    if prod_model_exists and prod_model_run_id is not None:
+        run = mlflow.get_run(prod_model_run_id)
+        prod_model_score = run.data.metrics.get("f1_score")
         model_status["current"] = train_model_score
         model_status["prod"] = prod_model_score
         
