@@ -162,6 +162,7 @@ def get_production_model(model_name: str) -> tuple[bool, str | None]:
         return prod_model_exists, prod_model_run_id
     else:
         print("No model in production.")
+        return False, None
 
 
 # Compare prod and best trained model
