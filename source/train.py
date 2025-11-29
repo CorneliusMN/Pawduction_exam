@@ -11,7 +11,7 @@ import mlflow
 import dvc.api
 import joblib
 
-from config import TRAIN_GOLD_FILE, XGBOOST_MODEL_FILE, LR_MODEL_FILE
+from config import TRAIN_GOLD_FILE, XGBOOST_MODEL_FILE, LR_MODEL_FILE, X_TEST_FILE, Y_TEST_FILE, DATE_FILTERED_DATA_FILE
 from wrappers import lr_wrapper 
 
 def create_dummy_cols(df: pd.DataFrame, col: str) -> pd.DataFrame:
@@ -109,6 +109,10 @@ X = onehot_encoded_data.drop(["lead_indicator"], axis=1)
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, random_state=42, test_size=0.15, stratify=y
 )
+
+# Save test files
+X_test.to_csv(X_TEST_FILE)
+y_test.to_csv(Y_TEST_FILE)
 
 # Define MLflow experiment
 current_date = datetime.datetime.now().strftime("%Y_%B_%d")
