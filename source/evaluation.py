@@ -130,7 +130,7 @@ def get_experiment_best_f1(experiment_name: str) -> pd.Series:
 def load_results_and_print_best_model(results_path: str = "./artifacts/model_results.json") -> str:
     """
     Load ./artifacts/model_results.json, build a DataFrame
-    of weighted averages, and print the best model by f1-score.
+    of weighted averages, and return the best model by f1-score.
     """
     with open(results_path, "r", encoding="utf-8") as file:
         model_results = json.load(file)
