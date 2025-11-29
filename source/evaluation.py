@@ -9,6 +9,9 @@ from mlflow.tracking import MlflowClient
 import pandas as pd
 import numpy as np
 
+from config import X_TEST_FILE, Y_TEST_FILE
+
+
 
 
 # Model test accuracy
