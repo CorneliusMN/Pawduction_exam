@@ -20,6 +20,9 @@ XGBOOST_MODEL_FILE = ARTIFACTS_DIR / "lead_model_xgboost.json"
 LR_MODEL_FILE = ARTIFACTS_DIR / "lead_model_lr.pkl"
 COLUMNS_LIST_FILE = ARTIFACTS_DIR / "columns_list.json"
 MODEL_RESULTS_FILE = ARTIFACTS_DIR / "model_results.json"
+X_TEST_FILE = DATA_DIR / "X_test.csv"
+Y_TEST_FILE = DATA_DIR / "y_test.csv"
+DATE_FILTERED_DATA_FILE = DATA_DIR / "date_filtered_data.csv"
 
 #MLFlow registry
 MLRUNS_DIR = PROJ_ROOT / "mlruns"

@@ -6,7 +6,7 @@ import subprocess
 import argparse
 import mlflow
 
-from config import DATE_LIMITS_FILE, RAW_DATA_FILE
+from config import DATE_LIMITS_FILE, RAW_DATA_FILE, DATE_FILTERED_DATA_FILE
 
 # Pulling data from DVC
 subprocess.run(["dvc", "pull"], check=True)
@@ -47,6 +47,9 @@ with mlflow.start_run():
         df["date_part"] = pd.to_datetime(df["date_part"]).dt.date
         return df[(df["date_part"] >= min_date) & (df["date_part"] <= max_date)]
     filtered_data = filter_by_date(data, min_date, max_date)
+
+    # Save filtered data
+    filtered_data.to_csv(DATE_FILTERED_DATA_FILE)
 
     # Compute the actual min/max in the filtered dataset
     actual_min = filtered_data["date_part"].min()
