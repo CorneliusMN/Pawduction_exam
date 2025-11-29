@@ -11,7 +11,7 @@ import mlflow
 import dvc.api
 import joblib
 
-from config import TRAIN_GOLD_FILE, XGBOOST_MODEL_FILE, LR_MODEL_FILE, X_TEST_FILE, Y_TEST_FILE, DATE_FILTERED_DATA_FILE
+from config import TRAIN_GOLD_FILE, XGBOOST_MODEL_FILE, LR_MODEL_FILE, X_TEST_FILE, Y_TEST_FILE
 from wrappers import lr_wrapper 
 
 def create_dummy_cols(df: pd.DataFrame, col: str) -> pd.DataFrame:
