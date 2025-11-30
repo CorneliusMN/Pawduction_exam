@@ -42,7 +42,7 @@ func Build(ctx context.Context) error {
 	train := preprocess.WithExec([]string{"python", "source/train.py"})
 
 	fmt.Println("Initializing evaluation")
-	evaluation := train.WithExec([]string{"python", "source/evaluate.py"})
+	evaluation := train.WithExec([]string{"python", "source/evaluation.py"})
 
 	_, err = evaluation.
 		Directory("artifacts").
