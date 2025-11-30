@@ -9,6 +9,21 @@ from mlflow.tracking import MlflowClient
 import pandas as pd
 import numpy as np
 
+from config import X_TEST_FILE, Y_TEST_FILE
+
+
+
+
+# Load test data
+
+def load_test_data() -> tuple[pd.DataFrame, pd.Series]:
+    """Load X_test and y_test from CSV files defined in config."""
+    X_test = pd.read_csv(X_TEST_FILE)
+    
+    y_test_df = pd.read_csv(Y_TEST_FILE)
+    y_test = y_test_df.iloc[:, 0]
+    
+    return X_test, y_test
 
 
 # Model test accuracy
@@ -115,7 +130,7 @@ def get_experiment_best_f1(experiment_name: str) -> pd.Series:
 def load_results_and_print_best_model(results_path: str = "./artifacts/model_results.json") -> str:
     """
     Load ./artifacts/model_results.json, build a DataFrame
-    of weighted averages, and print the best model by f1-score.
+    of weighted averages, and return the best model by f1-score.
     """
     with open(results_path, "r", encoding="utf-8") as file:
         model_results = json.load(file)
@@ -147,6 +162,7 @@ def get_production_model(model_name: str) -> tuple[bool, str | None]:
         return prod_model_exists, prod_model_run_id
     else:
         print("No model in production.")
+        return False, None
 
 
 # Compare prod and best trained model
