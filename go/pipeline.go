@@ -30,7 +30,14 @@ func Build(ctx context.Context) error {
 		WithDirectory("source", client.Host().Directory("../source")).
 		WithDirectory("data", client.Host().Directory("../data")).
 		WithDirectory("artifacts", client.Host().Directory("../artifacts")).
+		WithDirectory("root", client.Host().Directory("../")).
 		WithExec([]string{"python", "--version"})
+
+	fmt.Println("Downloading Requirements.txt")
+	python = python.WithExec([]string{
+		"bash", "-lc",
+		"if [ -f /source/requirements.txt ]; then pip install -r /source/requirements.txt; fi",
+	})
 
 	fmt.Println("Initializing data loading")
 	data := python.WithExec([]string{"python", "source/data.py"})
