@@ -37,7 +37,7 @@ func Build(ctx context.Context) error {
 	fmt.Println("Downloading Requirements.txt")
 	base = base.WithExec([]string{
 		"bash", "-lc",
-		"if [ -f /source/requirements.txt ]; then python -m pip install -r /source/requirements.txt; fi",
+		"if [ -f /root/requirements.txt ]; then python -m pip install -r /root/requirements.txt; fi",
 	})
 
 	base = base.WithWorkdir("/source")
