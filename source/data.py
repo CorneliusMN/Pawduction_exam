@@ -8,6 +8,8 @@ import mlflow
 
 from config import DATE_LIMITS_FILE, RAW_DATA_FILE, DATE_FILTERED_DATA_FILE
 
+subprocess.run(["dvc", "update", RAW_DATA_FILE], check=True)
+
 # Pulling data from DVC
 subprocess.run(["dvc", "pull"], check=True)
 
