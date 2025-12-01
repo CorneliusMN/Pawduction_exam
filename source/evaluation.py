@@ -1,4 +1,3 @@
-import os
 import json
 import time
 
@@ -8,8 +7,10 @@ import mlflow
 from mlflow.tracking import MlflowClient
 import pandas as pd
 import numpy as np
+import joblib
+from xgboost import XGBRFClassifier
 
-from config import X_TEST_FILE, Y_TEST_FILE
+from config import X_TEST_FILE, Y_TEST_FILE, LR_MODEL_FILE, XGBOOST_MODEL_FILE, COLUMNS_LIST_FILE, MODEL_RESULTS_FILE
 
 
 
@@ -64,24 +65,20 @@ def confusion_matrix_and_classification_report(
 
 def save_columns_and_model_results(
     X_train: pd.DataFrame,
-    model_results: dict,
-    out_dir: str = "artifacts") -> tuple[str, str]:
-    """Save column list and model results to JSON files."""
-    # Ensure output directory exists
-    os.makedirs(out_dir, exist_ok=True)
+    model_results: dict) -> tuple[str, str]:
+    """
+    Save column list and model results to JSON files using paths from config.py.
+    """
+    COLUMNS_LIST_FILE.parent.mkdir(parents=True, exist_ok=True)
+    MODEL_RESULTS_FILE.parent.mkdir(parents=True, exist_ok=True)
     
-    column_list_path = os.path.join(out_dir, "columns_list.json")
-    # Extract columns names from X_train
-    with open(column_list_path, "w", encoding="utf-8") as columns_file:
-        columns = {"column_names": list(X_train.columns)}
-        json.dump(columns, columns_file)
-    
-    # Output path for the model results JSON
-    model_results_path = os.path.join(out_dir, "model_results.json")
-    with open(model_results_path, "w", encoding="utf-8") as results_file:
-        json.dump(model_results, results_file)
-    
-    return column_list_path, model_results_path
+    with open(COLUMNS_LIST_FILE, "w", encoding="utf-8") as f:
+        json.dump({"column_names": list(X_train.columns)}, f)
+        
+    with open(MODEL_RESULTS_FILE, "w", encoding="utf-8") as f:
+        json.dump(model_results, f)
+
+    return str(COLUMNS_LIST_FILE), str(MODEL_RESULTS_FILE)
 
 
 # Model selection
@@ -263,3 +260,50 @@ def run_stage_transition(
         print("Model already in staging.")
     
     return model_status
+
+
+# Load models saved by train.py
+
+def load_lr_model():
+    """Load Logistic Regression model (.pkl)."""
+    return joblib.load(LR_MODEL_FILE)
+
+
+def load_xgb_model():
+    """Load XGBRFClassifier model (.json)"""
+    model = XGBRFClassifier()
+    model.load_model(str(XGBOOST_MODEL_FILE))
+    return model
+
+
+
+
+# Evaluation pipeline
+
+def evaluation_pipeline():
+    """Full evaluation pipeline."""
+    # 1. Load test data
+    X_test, y_test = load_test_data()
+    
+    # 2. Load models saved during training
+    lr_model = load_lr_model()
+    xgb_model = load_xgb_model()
+    
+    # 3. Predict
+    y_pred_lr = lr_model.predict(X_test)
+    y_pred_xgb = xgb_model.predict(X_test)
+    
+    # 4. Build model_results dict
+    lr_report_dict = classification_report(y_test, y_pred_lr, output_dict=True)
+    xgb_report_dict = classification_report(y_test, y_pred_xgb, output_dict=True)
+    
+    model_results = {"logistic_regression": lr_report_dict, "xgboost": xgb_report_dict}
+    
+    # 5. Save artifacts
+    columns_path, results_path = save_columns_and_model_results(X_train=X_test, model_results=model_results)
+    
+    return columns_path, results_path
+
+
+if __name__ == "__main__":
+    columns_path, results_path = evaluation_pipeline()
