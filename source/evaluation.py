@@ -280,12 +280,10 @@ def load_xgb_model():
 
 # Evaluation pipeline
 
-def evaluation_pipeline() -> None:
+def evaluation_pipeline():
     """Full evaluation pipeline."""
     # 1. Load test data
     X_test, y_test = load_test_data()
-    
-    print(f"Loaded test data: X_test shape is {X_test.shape}, y_test.shape is {y_test.shape}")
     
     # 2. Load models saved during training
     lr_model = load_lr_model()
@@ -295,27 +293,17 @@ def evaluation_pipeline() -> None:
     y_pred_lr = lr_model.predict(X_test)
     y_pred_xgb = xgb_model.predict(X_test)
     
-    # 4. Compute confusion matrices and classification reports
-    conf_mat_lr, class_rep_lr = confusion_matrix_and_classification_report(y_test=y_test, y_pred_test=y_pred_lr)
-    conf_mat_xgb, class_rep_xgb = confusion_matrix_and_classification_report(y_test=y_test, y_pred_test=y_pred_xgb)
-    
-    print("\n=== Logistic Regression - Confusion matrix (test) ===")
-    print(conf_mat_lr)
-    print("\n=== Logistic Regression - Classification report (test) ===")
-    print(class_rep_lr)
-    
-    print("\n=== XGBoost - Confusion matrix (test) ===")
-    print(conf_mat_xgb)
-    print("\n=== XGBoost - Classification report (test) ===")
-    print(class_rep_xgb)
-    
-    # 5. Build model_results dict
+    # 4. Build model_results dict
     lr_report_dict = classification_report(y_test, y_pred_lr, output_dict=True)
     xgb_report_dict = classification_report(y_test, y_pred_xgb, output_dict=True)
     
     model_results = {"logistic_regression": lr_report_dict, "xgboost": xgb_report_dict}
     
+    # 5. Save artifacts
     columns_path, results_path = save_columns_and_model_results(X_train=X_test, model_results=model_results)
     
-    print(f"Saved columns list to: {columns_path}")
-    print(f"Saved model results to: {results_path}")
+    return columns_path, results_path
+
+
+if __name__ == "__main__":
+    columns_path, results_path = evaluation_pipeline()
