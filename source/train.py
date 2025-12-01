@@ -86,13 +86,13 @@ def train_model(model_name: str, experiment_id: str, run_name: str,
         
         # Save the model locally and log as pyfunc model for inference 
         if model_name == "LogisticRegression":
-            mlflow.pyfunc.log_model("model", python_model=lr_wrapper(best_model))
-            joblib.dump(best_model, model_path)
+            mlflow.pyfunc.log_model("model", python_model=lr_wrapper(model))
+            joblib.dump(model, model_path)
         else:
-            best_model.save_model(str(model_path))
+            model.save_model(str(model_path))
 
-        # Log data version from DVC
-        mlflow.log_param("data_version", dvc.api.get_url(TRAIN_GOLD_FILE))
+        # Log data version
+        mlflow.log_param("data_version", "00000")
 
 # Load processed data
 data = pd.read_csv(TRAIN_GOLD_FILE)
