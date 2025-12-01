@@ -67,7 +67,6 @@ def confusion_matrix_and_classification_report(
 def save_columns_and_model_results(
     X_train: pd.DataFrame,
     model_results: dict) -> tuple[str, str]:
-    """Save column list and model results to JSON files."""
     """
     Save column list and model results to JSON files using paths from config.py.
     """
@@ -272,7 +271,7 @@ def load_lr_model():
 
 
 def load_xgb_model():
-    """Load XGBRFCClassifier model (.json)"""
+    """Load XGBRFClassifier model (.json)"""
     model = XGBRFClassifier()
     model.load_model(str(XGBOOST_MODEL_FILE))
     return model
