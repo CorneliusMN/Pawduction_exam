@@ -1,12 +1,13 @@
-md5: b92765a64daed02d8bcaf69ef5325b8e
+md5: 23cfa41cb69f086c19792422e70d0800
 frozen: true
 deps:
-- path: raw_data.csv
-  repo:
-    url: https://github.com/Jeppe-T-K/itu-sdse-project-data
-    rev_lock: 1b2530d2bcdbe8e40d936c16a16922f380be3d6a
+- checksum: '"179c6d37c5ff4a70c91a9247d81e5b244eb4ef6f0bcdc225f5b41ed38716333e"'
+  size: 1358284
+  hash: md5
+  path: 
+    https://raw.githubusercontent.com/Jeppe-T-K/itu-sdse-project-data/refs/heads/main/raw_data.csv
 outs:
 - md5: dd03cc564f2ba39b7108a97c043999ea
-  size: 1370630
+  size: 1358284
   hash: md5
   path: ../data/raw_data.csv
