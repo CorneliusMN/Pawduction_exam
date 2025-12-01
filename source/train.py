@@ -89,7 +89,7 @@ def train_model(model_name: str, experiment_id: str, run_name: str,
             mlflow.pyfunc.log_model("model", python_model=lr_wrapper(model))
             joblib.dump(model, model_path)
         else:
-            model.save_model(str(model_path))
+            best_model.save_model(str(model_path))
 
         # Log data version
         mlflow.log_param("data_version", "00000")
