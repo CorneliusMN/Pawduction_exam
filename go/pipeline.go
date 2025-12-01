@@ -26,40 +26,43 @@ func Build(ctx context.Context) error {
 	}
 	defer client.Close()
 
-	python := client.Container().From("python:3.12.2-bookworm").
-		WithDirectory("source", client.Host().Directory("../source")).
-		WithDirectory("data", client.Host().Directory("../data")).
-		WithDirectory("artifacts", client.Host().Directory("../artifacts")).
-		WithDirectory("root", client.Host().Directory("../")).
+	base := client.Container().
+		From("python:3.12.2-bookworm").
+		WithDirectory("/source", client.Host().Directory("../source")).
+		WithDirectory("/data", client.Host().Directory("../data")).
+		WithDirectory("/artifacts", client.Host().Directory("../artifacts")).
+		WithDirectory("/root", client.Host().Directory("../")).
 		WithExec([]string{"python", "--version"})
 
 	fmt.Println("Downloading Requirements.txt")
-	python = python.WithExec([]string{
+	base = base.WithExec([]string{
 		"bash", "-lc",
-		"if [ -f /source/requirements.txt ]; then pip install -r /source/requirements.txt; fi",
+		"if [ -f /source/requirements.txt ]; then python -m pip install -r /source/requirements.txt; fi",
 	})
 
+	base = base.WithWorkdir("/source")
+
 	fmt.Println("Initializing data loading")
-	data := python.WithExec([]string{"python", "source/data.py"})
+	data := base.WithExec([]string{"python", "data.py"})
 
 	fmt.Println("Initializing preprocessing")
-	preprocess := data.WithExec([]string{"python", "source/preprocess.py"})
+	preprocess := data.WithExec([]string{"python", "preprocess.py"})
 
 	fmt.Println("Initializing training")
-	train := preprocess.WithExec([]string{"python", "source/train.py"})
+	train := preprocess.WithExec([]string{"python", "train.py"})
 
 	fmt.Println("Initializing evaluation")
-	evaluation := train.WithExec([]string{"python", "source/evaluation.py"})
+	evaluation := train.WithExec([]string{"python", "evaluation.py"})
 
 	_, err = evaluation.
-		Directory("artifacts").
+		Directory("/artifacts").
 		Export(ctx, "artifacts")
 	if err != nil {
 		return err
 	}
 
 	_, err = evaluation.
-		Directory("mlruns").
+		Directory("/mlruns").
 		Export(ctx, "mlruns")
 	if err != nil {
 		return err
