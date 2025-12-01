@@ -8,6 +8,7 @@ import mlflow
 from mlflow.tracking import MlflowClient
 import pandas as pd
 import numpy as np
+import joblib
 from xgboost import XGBRFClassifier
 
 from config import X_TEST_FILE, Y_TEST_FILE, LR_MODEL_FILE, XGBOOST_MODEL_FILE, COLUMNS_LIST_FILE, MODEL_RESULTS_FILE
@@ -264,3 +265,17 @@ def run_stage_transition(
         print("Model already in staging.")
     
     return model_status
+
+
+# Load models saved by train.py
+
+def load_lr_model():
+    """Load Logistic Regression model (.pkl)."""
+    return joblib.load(LR_MODEL_FILE)
+
+
+def load_xgb_model():
+    """Load XGBRFCClassifier model (.json)"""
+    model = XGBRFClassifier()
+    model.load_model(str(XGBOOST_MODEL_FILE))
+    return model
