@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
 from util import impute_missing_values
-from config import RAW_DATA_FILE, OUTLIER_SUMMARY_FILE, CAT_MISSING_IMPUTE_FILE, SCALER_FILE, COLUMNS_DRIFT_FILE, TRAINING_DATA_FILE, TRAIN_GOLD_FILE
+from config import DATE_FILTERED_DATA_FILE, OUTLIER_SUMMARY_FILE, CAT_MISSING_IMPUTE_FILE, SCALER_FILE, COLUMNS_DRIFT_FILE, TRAINING_DATA_FILE, TRAIN_GOLD_FILE
 
 def describe_numeric_col(x: pd.Series) -> pd.Series:
     '''
@@ -148,5 +148,5 @@ def preprocess_pipeline(df: pd.DataFrame) -> pd.DataFrame:
     return final
 
 if __name__ == "__main__":
-    df = pd.read_csv(RAW_DATA_FILE)
+    df = pd.read_csv(DATE_FILTERED_DATA_FILE)
     preprocess_pipeline(df)
