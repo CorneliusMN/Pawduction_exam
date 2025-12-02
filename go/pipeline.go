@@ -40,18 +40,33 @@ func Build(ctx context.Context) error {
 		"bash", "-lc",
 		"if [ -f /repo/requirements.txt ]; then python -m pip install -r /repo/requirements.txt; fi",
 	})
+	if _, err := base.Stdout(ctx); err != nil {
+		return err
+	}
 
 	fmt.Println("Initializing data loading")
 	data := base.WithExec([]string{"python", "data.py"})
+	if _, err := data.Stdout(ctx); err != nil {
+		return err
+	}
 
 	fmt.Println("Initializing preprocessing")
 	preprocess := data.WithExec([]string{"python", "preprocess.py"})
+	if _, err := preprocess.Stdout(ctx); err != nil {
+		return err
+	}
 
 	fmt.Println("Initializing training")
 	train := preprocess.WithExec([]string{"python", "train.py"})
+	if _, err := train.Stdout(ctx); err != nil {
+		return err
+	}
 
 	fmt.Println("Initializing evaluation")
 	evaluation := train.WithExec([]string{"python", "evaluation.py"})
+	if _, err := evaluation.Stdout(ctx); err != nil {
+		return err
+	}
 
 	// Export artifacts and mlruns from the repo layout
 	_, err = evaluation.
