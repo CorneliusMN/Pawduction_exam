@@ -84,6 +84,13 @@ func Build(ctx context.Context) error {
 		return err
 	}
 
+	_, err = evaluation.
+		Directory("/repo/source/mlruns").
+		Export(ctx, "../mlruns")
+	if err != nil {
+		return err
+	}
+
 	fmt.Println("Pipeline complete")
 	return nil
 }
