@@ -36,7 +36,7 @@ func Build(ctx context.Context) error {
 		WithExec([]string{"python", "--version"})
 
 	// Install pip requirements from repo root if they exist
-	base, _ = base.WithExec([]string{
+	base = base.WithExec([]string{
 		"bash", "-lc",
 		"if [ -f /repo/requirements.txt ]; then python -m pip install -r /repo/requirements.txt; fi",
 	})
