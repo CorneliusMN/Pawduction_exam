@@ -291,18 +291,18 @@ def evaluation_pipeline():
     X_test, y_test = load_test_data()
     
     # 2. Load models saved during training
-    lr_model = load_lr_model()
+    # lr_model = load_lr_model()
     xgb_model = load_xgb_model()
     
     # 3. Predict
-    y_pred_lr = lr_model.predict(X_test)
+    # y_pred_lr = lr_model.predict(X_test)
     y_pred_xgb = xgb_model.predict(X_test)
     
     # 4. Build model_results dict
-    lr_report_dict = classification_report(y_test, y_pred_lr, output_dict=True)
+    # lr_report_dict = classification_report(y_test, y_pred_lr, output_dict=True)
     xgb_report_dict = classification_report(y_test, y_pred_xgb, output_dict=True)
     
-    model_results = {"logistic_regression": lr_report_dict, "xgboost": xgb_report_dict}
+    model_results = {"xgboost": xgb_report_dict} # "logistic_regression": lr_report_dict,
     
     # 5. Save artifacts
     columns_path, results_path = save_columns_and_model_results(X_train=X_test, model_results=model_results)
