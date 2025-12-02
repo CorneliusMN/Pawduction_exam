@@ -6,10 +6,11 @@ import subprocess
 import argparse
 import mlflow
 
-from config import DATE_LIMITS_FILE, RAW_DATA_FILE, DATE_FILTERED_DATA_FILE
+from config import DATE_LIMITS_FILE, RAW_DATA_FILE, DATE_FILTERED_DATA_FILE, PROJ_ROOT
 
 # Pulling data from DVC
-subprocess.run(["dvc", "pull"], check=True)
+subprocess.run(["dvc", "update", "data/raw_data.csv.dvc"], check=True, cwd=PROJ_ROOT)
+subprocess.run(["dvc", "pull"], check=True, cwd=PROJ_ROOT)
 
 # Loading data locally
 print("Loading training data")
