@@ -41,8 +41,6 @@ func Build(ctx context.Context) error {
 		"if [ -f /repo/requirements.txt ]; then python -m pip install -r /repo/requirements.txt; fi",
 	})
 
-	base = base.WithWorkdir("/source")
-
 	fmt.Println("Initializing data loading")
 	data := base.WithExec([]string{"python", "data.py"})
 
@@ -55,16 +53,17 @@ func Build(ctx context.Context) error {
 	fmt.Println("Initializing evaluation")
 	evaluation := train.WithExec([]string{"python", "evaluation.py"})
 
+	// Export artifacts and mlruns from the repo layout
 	_, err = evaluation.
-		Directory("/artifacts").
-		Export(ctx, "artifacts")
+		Directory("/repo/artifacts").
+		Export(ctx, "../artifacts")
 	if err != nil {
 		return err
 	}
 
 	_, err = evaluation.
-		Directory("/mlruns").
-		Export(ctx, "mlruns")
+		Directory("/repo/data").
+		Export(ctx, "../data")
 	if err != nil {
 		return err
 	}
