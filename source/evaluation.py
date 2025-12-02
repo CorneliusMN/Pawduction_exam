@@ -269,9 +269,9 @@ def run_stage_transition(
 
 # Load models saved by train.py
 
-def load_lr_model():
-    """Load Logistic Regression model (.pkl)."""
-    return joblib.load(LR_MODEL_FILE)
+# def load_lr_model():
+#     """Load Logistic Regression model (.pkl)."""
+#     return joblib.load(LR_MODEL_FILE)
 
 
 def load_xgb_model():
