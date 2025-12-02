@@ -111,8 +111,8 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # Save test files
-X_test.to_csv(X_TEST_FILE)
-y_test.to_csv(Y_TEST_FILE)
+X_test.to_csv(X_TEST_FILE, index = False)
+y_test.to_csv(Y_TEST_FILE, index = False)
 
 # Define MLflow experiment
 current_date = datetime.datetime.now().strftime("%Y_%B_%d")

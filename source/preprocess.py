@@ -57,7 +57,7 @@ def handle_outliers(cont_vars: pd.DataFrame) -> pd.DataFrame:
     '''
     cont_vars_cleaned = cont_vars.apply(lambda x: x.clip(lower = (x.mean()-2*x.std()), upper = (x.mean()+2*x.std())))
     outlier_summary = cont_vars_cleaned.apply(describe_numeric_col).T
-    outlier_summary.to_csv(OUTLIER_SUMMARY_FILE)
+    outlier_summary.to_csv(OUTLIER_SUMMARY_FILE, index = False)
     return cont_vars_cleaned
 
 def impute(cat_vars: pd.DataFrame, cont_vars: pd.DataFrame):
@@ -65,7 +65,7 @@ def impute(cat_vars: pd.DataFrame, cont_vars: pd.DataFrame):
     impute missing values using utils function
     '''
     cat_missing_impute = cat_vars.mode(numeric_only=False, dropna=True)
-    cat_missing_impute.to_csv(CAT_MISSING_IMPUTE_FILE)
+    cat_missing_impute.to_csv(CAT_MISSING_IMPUTE_FILE, index = False)
 
     # Continuous variables missing values
     cont_vars = cont_vars.apply(impute_missing_values)

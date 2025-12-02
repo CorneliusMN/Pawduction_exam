@@ -50,7 +50,7 @@ with mlflow.start_run():
     filtered_data = filter_by_date(data, min_date, max_date)
 
     # Save filtered data
-    filtered_data.to_csv(DATE_FILTERED_DATA_FILE)
+    filtered_data.to_csv(DATE_FILTERED_DATA_FILE, index = False)
 
     # Compute the actual min/max in the filtered dataset
     actual_min = filtered_data["date_part"].min()
