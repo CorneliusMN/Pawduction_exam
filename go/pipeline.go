@@ -26,18 +26,19 @@ func Build(ctx context.Context) error {
 	}
 	defer client.Close()
 
+	// Mount the entire repository at /repo so container layout matches local repo
+	repo := client.Host().Directory("../")
+
 	base := client.Container().
 		From("python:3.12.2-bookworm").
-		WithDirectory("/source", client.Host().Directory("../source")).
-		WithDirectory("/data", client.Host().Directory("../data")).
-		WithDirectory("/artifacts", client.Host().Directory("../artifacts")).
-		WithDirectory("/root", client.Host().Directory("../")).
+		WithDirectory("/repo", repo). // mount host repo root at /repo
+		WithWorkdir("/repo/source").  // run commands from source folder
 		WithExec([]string{"python", "--version"})
 
-	fmt.Println("Downloading Requirements.txt")
-	base = base.WithExec([]string{
+	// Install pip requirements from repo root if they exist
+	base, _ = base.WithExec([]string{
 		"bash", "-lc",
-		"if [ -f /root/requirements.txt ]; then python -m pip install -r /root/requirements.txt; fi",
+		"if [ -f /repo/requirements.txt ]; then python -m pip install -r /repo/requirements.txt; fi",
 	})
 
 	base = base.WithWorkdir("/source")
