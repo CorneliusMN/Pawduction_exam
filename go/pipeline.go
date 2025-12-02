@@ -69,6 +69,7 @@ func Build(ctx context.Context) error {
 	}
 
 	// Export artifacts and mlruns from the repo layout
+	fmt.Println("Exporing Artifacts and Data")
 	_, err = evaluation.
 		Directory("/repo/artifacts").
 		Export(ctx, "../artifacts")
