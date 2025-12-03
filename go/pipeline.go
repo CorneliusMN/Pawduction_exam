@@ -27,7 +27,7 @@ func Build(ctx context.Context) error {
 	defer client.Close()
 
 	// Mount the entire repository at /repo so container layout matches local repo
-	repo := client.Host().Directory("../")
+	repo := client.Host().Directory(".")
 
 	base := client.Container().
 		From("python:3.12.2-bookworm").
@@ -72,21 +72,21 @@ func Build(ctx context.Context) error {
 	fmt.Println("Exporing Artifacts and Data")
 	_, err = evaluation.
 		Directory("/repo/artifacts").
-		Export(ctx, "../artifacts")
+		Export(ctx, "artifacts")
 	if err != nil {
 		return err
 	}
 
 	_, err = evaluation.
 		Directory("/repo/data").
-		Export(ctx, "../data")
+		Export(ctx, "data")
 	if err != nil {
 		return err
 	}
 
 	_, err = evaluation.
 		Directory("/repo/source/mlruns").
-		Export(ctx, "../mlruns")
+		Export(ctx, "source/mlruns")
 	if err != nil {
 		return err
 	}
