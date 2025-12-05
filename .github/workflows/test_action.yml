@@ -1,33 +1,15 @@
 name: Test ML Model
 
 on:
-  workflow_run:
-    workflows: ["Train ML Model"]
-    types:
-      - completed
+  workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download model artifact from training workflow
-        uses: actions/download-artifact@v4
-        with:
-          name: model
-          run-id: ${{ github.event.workflow_run.id }}
-          path: model
-
-      - name: Prepare model for inference action
-        run: |
-          mkdir -p model
-          mv model/artifacts/model.pkl model/model.pkl
-
-      - name: Re-upload model artifact for composite action
-        uses: actions/upload-artifact@v4
-        with:
-          name: model
-          path: model
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.7
 
       - name: Run Model Inference Test Action
         uses: lasselundstenjensen/itu-sdse-project-model-validator@main
