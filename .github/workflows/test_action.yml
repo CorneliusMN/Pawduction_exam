@@ -1,13 +1,22 @@
 name: Test ML Model
 
 on:
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Train ML Model"]
+    types:
+      - completed
 
 jobs:
-  train:
+  test:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Download model artifact from training workflow
+        uses: actions/download-artifact@v4
+        with:
+          name: model
+          run-id: ${{ github.event.workflow_run.id }}
+          path: model
+
       - name: Run Model Inference Test Action
         uses: lasselundstenjensen/itu-sdse-project-model-validator@main
-
