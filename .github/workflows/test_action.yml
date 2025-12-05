@@ -1,7 +1,9 @@
-name: Test ML Model
-
+name: Test Model
 on:
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Train ML Model"]
+    types:
+      - completed
 
 jobs:
   test:
@@ -13,3 +15,4 @@ jobs:
 
       - name: Run Model Inference Test Action
         uses: lasselundstenjensen/itu-sdse-project-model-validator@main
+
