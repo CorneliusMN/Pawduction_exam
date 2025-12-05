@@ -18,5 +18,11 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           path: model
 
+      - name: Re-upload model artifact for model 
+        uses: actions/upload-artifact@v4
+        with:
+          name: model
+          path: model
+
       - name: Run Model Inference Test Action
         uses: lasselundstenjensen/itu-sdse-project-model-validator@main
