@@ -23,5 +23,11 @@ jobs:
           mkdir -p model
           mv model/artifacts/model.pkl model/model.pkl
 
+      - name: Re-upload model artifact for composite action
+        uses: actions/upload-artifact@v4
+        with:
+          name: model
+          path: model
+
       - name: Run Model Inference Test Action
         uses: lasselundstenjensen/itu-sdse-project-model-validator@main
