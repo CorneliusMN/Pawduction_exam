@@ -30,7 +30,7 @@ func Build(ctx context.Context) error {
 	repo := client.Host().Directory(".")
 
 	base := client.Container().
-		From("python:3.12-bookworm").
+		From("python:3.12-slim-bookworm").
 		WithDirectory("/repo", repo). // mount host repo root at /repo
 		WithWorkdir("/repo/source").  // run commands from source folder
 		WithExec([]string{"python", "--version"})
