@@ -86,8 +86,8 @@ def train_model(model_name: str, experiment_id: str, run_name: str,
         
         # Save the model locally and log as pyfunc model for inference 
         if model_name == "LogisticRegression":
-            mlflow.pyfunc.log_model("model", python_model=lr_wrapper(model))
-            joblib.dump(model, model_path)
+            mlflow.pyfunc.log_model("model", python_model=lr_wrapper(best_model))
+            joblib.dump(best_model, model_path)
         else:
             best_model.save_model(str(model_path))
 
