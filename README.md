@@ -41,9 +41,7 @@ The project is made up of cookiecutter files, organized with a daggerworkflow in
 │
 ├── requirements.txt                 <- Python dependencies needed for the project
 │
-│
 └── source                           <- Source code for the project
-    │
     │
     ├── config.py       <- Python script with essential configs like paths
     │
