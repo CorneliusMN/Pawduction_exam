@@ -1,17 +1,21 @@
-import pandas as pd
-from pathlib import Path
-from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from scipy.stats import uniform, randint
 import datetime
+from pathlib import Path
 
-from xgboost import XGBRFClassifier
+import pandas as pd
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.linear_model import LogisticRegression
-
+from scipy.stats import uniform, randint
+from xgboost import XGBRFClassifier
 import mlflow
-import dvc.api
 import joblib
 
-from config import TRAIN_GOLD_FILE, XGBOOST_MODEL_FILE, LR_MODEL_FILE, X_TEST_FILE, Y_TEST_FILE
+from config import (
+    TRAIN_GOLD_FILE,
+    XGBOOST_MODEL_FILE,
+    LR_MODEL_FILE,
+    X_TEST_FILE,
+    Y_TEST_FILE
+)
 from wrappers import lr_wrapper
 
 
@@ -28,8 +32,10 @@ def create_dummy_cols(df: pd.DataFrame, col: str) -> pd.DataFrame:
 
 def onehot_encode(data: pd.DataFrame) -> pd.DataFrame:
     """
-    Drops unnecessary columns and applies one-hot encoding to specified categorical features.
-    Converts all resulting columns to float64 for modeling compatibility.
+    Drops unnecessary columns and applies one-hot encoding to specified
+    categorical features.
+    Converts all resulting columns to float64 for modeling
+    compatibility.
     """
     data = data.drop(["lead_id", "customer_code", "date_part"], axis=1)
 
@@ -61,7 +67,7 @@ def train_model(
         model_path: Path):
     """
     Takes model, random grid search parameters and train data
-    and saves best model while tracking parameters in MLFlow
+    and saves best model while tracking parameters in MLFlow.
 
     model_name: XGBRFClassifier / LogisticRegression
     experiment_id: experiment_id
