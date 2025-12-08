@@ -3,7 +3,8 @@ import pandas as pd
 
 def impute_missing_values(x: pd.Series, method: str = "mean") -> pd.Series:
     """
-    Imputes the mean/median for numeric columns or the mode for other types.
+    Imputes the mean/median for numeric columns or the mode
+    for other types.
     Parameters:
         x (pd.Series): Pandas col to describe.
         method (str): Values: "mean", "median"
