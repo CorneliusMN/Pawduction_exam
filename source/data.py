@@ -9,13 +9,14 @@ import mlflow
 from config import DATE_LIMITS_FILE, RAW_DATA_FILE, DATE_FILTERED_DATA_FILE, PROJ_ROOT
 
 # Pulling data from DVC
-subprocess.run(["dvc", "update", "data/raw_data.csv.dvc"], check=True, cwd=PROJ_ROOT)
+subprocess.run(["dvc", "update", "data/raw_data.csv.dvc"],
+               check=True, cwd=PROJ_ROOT)
 subprocess.run(["dvc", "pull"], check=True, cwd=PROJ_ROOT)
 
 # Loading data locally
 print("Loading training data")
 data = pd.read_csv(RAW_DATA_FILE)
-print("Total rows:", len(data)) #data.count()
+print("Total rows:", len(data))  # data.count()
 
 # Parameterize min and max date
 parser = argparse.ArgumentParser()
@@ -24,13 +25,13 @@ parser.add_argument("--max_date", type=str, default=None)
 args = parser.parse_args()
 
 min_date = (
-    pd.to_datetime(args.min_date).date() 
-    if args.min_date 
+    pd.to_datetime(args.min_date).date()
+    if args.min_date
     else pd.to_datetime("2024-01-01").date()
 )
 max_date = (
-    pd.to_datetime(args.max_date).date() 
-    if args.max_date 
+    pd.to_datetime(args.max_date).date()
+    if args.max_date
     else pd.to_datetime(datetime.datetime.now().date()).date()
 )
 
@@ -40,17 +41,21 @@ with mlflow.start_run():
     mlflow.log_param("max_date", str(max_date))
 
     # Filter data to specified date range
-    def filter_by_date(df: pd.DataFrame, min_date: datetime.date, max_date: datetime.date) -> pd.DataFrame:
+    def filter_by_date(
+            df: pd.DataFrame,
+            min_date: datetime.date,
+            max_date: datetime.date) -> pd.DataFrame:
         """
         Takes data frame and min/ max dates and returns a data frame filtered for the specified date range
         """
         df = df.copy()
         df["date_part"] = pd.to_datetime(df["date_part"]).dt.date
-        return df[(df["date_part"] >= min_date) & (df["date_part"] <= max_date)]
+        return df[(df["date_part"] >= min_date) &
+                  (df["date_part"] <= max_date)]
     filtered_data = filter_by_date(data, min_date, max_date)
 
     # Save filtered data
-    filtered_data.to_csv(DATE_FILTERED_DATA_FILE, index = False)
+    filtered_data.to_csv(DATE_FILTERED_DATA_FILE, index=False)
 
     # Compute the actual min/max in the filtered dataset
     actual_min = filtered_data["date_part"].min()
@@ -65,7 +70,7 @@ with mlflow.start_run():
 
     # Save date artifact
     with open(DATE_LIMITS_FILE, "w") as f:
-            json.dump(date_limits, f)
+        json.dump(date_limits, f)
 
     # Log date artifact in MLFlow
     mlflow.log_artifact(DATE_LIMITS_FILE)
