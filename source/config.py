@@ -1,7 +1,7 @@
 from pathlib import Path
 
 # Project root
-# goes up one level to parent directory from where config file is stored
+# Goes up one level to parent directory from where config file is stored
 PROJ_ROOT = Path(__file__).resolve().parents[1]
 
 # Directories
