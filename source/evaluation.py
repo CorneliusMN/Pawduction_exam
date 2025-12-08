@@ -1,7 +1,11 @@
 import json
 import time
 
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    classification_report
+)
 from sklearn.model_selection import RandomizedSearchCV
 import mlflow
 from mlflow.tracking import MlflowClient
@@ -10,11 +14,16 @@ import numpy as np
 import joblib
 from xgboost import XGBRFClassifier
 
-from config import X_TEST_FILE, Y_TEST_FILE, LR_MODEL_FILE, XGBOOST_MODEL_FILE, COLUMNS_LIST_FILE, MODEL_RESULTS_FILE
-
+from config import (
+    X_TEST_FILE,
+    Y_TEST_FILE,
+    LR_MODEL_FILE,
+    XGBOOST_MODEL_FILE,
+    COLUMNS_LIST_FILE,
+    MODEL_RESULTS_FILE
+)
 
 # Load test data
-
 def load_test_data() -> tuple[pd.DataFrame, pd.Series]:
     """Load X_test and y_test from CSV files defined in config."""
     X_test = pd.read_csv(X_TEST_FILE)
@@ -27,7 +36,6 @@ def load_test_data() -> tuple[pd.DataFrame, pd.Series]:
 
 
 # Model test accuracy
-
 def report_best_xgboost_and_accuracy(
         model_grid: RandomizedSearchCV,
         X_test: pd.DataFrame,
@@ -41,7 +49,6 @@ def report_best_xgboost_and_accuracy(
 
 
 # XGBoost performance overview
-
 def confusion_matrix_and_classification_report(
         y_test: pd.Series,
         y_pred_test: pd.Series) -> tuple[np.ndarray, str]:
@@ -49,10 +56,6 @@ def confusion_matrix_and_classification_report(
     Produce a performance overview consisting of confusion matrix
     and classification report for test.
     """
-    # # Train metrics
-    # conf_mat_train = confusion_matrix(y_train, y_pred_train)
-    # class_rep_train = classification_report(y_train, y_pred_train)
-
     # Test metrics
     conf_mat_test = confusion_matrix(y_test, y_pred_test)
     class_rep_test = classification_report(y_test, y_pred_test)
@@ -61,12 +64,12 @@ def confusion_matrix_and_classification_report(
 
 
 # Save columns and model results
-
 def save_columns_and_model_results(
         X_train: pd.DataFrame,
         model_results: dict) -> tuple[str, str]:
     """
-    Save column list and model results to JSON files using paths from config.py.
+    Save column list and model results to JSON files using
+    paths from config.py.
     """
     COLUMNS_LIST_FILE.parent.mkdir(parents=True, exist_ok=True)
     MODEL_RESULTS_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -81,7 +84,6 @@ def save_columns_and_model_results(
 
 
 # Model selection
-
 def model_selection(
         experiment_name: str,
         metric: str = "f1_score",
@@ -107,7 +109,6 @@ def model_selection(
 
 
 # Getting experiment model results
-
 def get_experiment_best_f1(experiment_name: str) -> pd.Series:
     """Return the top run by f1 from the given experiment."""
     experiment = mlflow.get_experiment_by_name(experiment_name)
@@ -142,7 +143,6 @@ def load_results_and_print_best_model(
 
 
 # Get production model
-
 def get_production_model(model_name: str) -> tuple[bool, str | None]:
     """Load the latest production-ready model for a given name."""
     client = MlflowClient()
@@ -164,8 +164,6 @@ def get_production_model(model_name: str) -> tuple[bool, str | None]:
 
 
 # Compare prod and best trained model
-# Here model_status is not used
-
 def compare_prod_and_best_trained(
         experiment_best: pd.Series,
         prod_model_exists: bool,
@@ -194,7 +192,6 @@ def compare_prod_and_best_trained(
 
 
 # Register best model
-
 def register_best_model(
         run_id: str | None,
         artifact_path: str,
@@ -214,7 +211,6 @@ def register_best_model(
 
 
 # Deploy
-
 def wait_for_deployment(
         model_name: str,
         model_version: int,
@@ -267,7 +263,6 @@ def run_stage_transition(
 
 
 # Load models saved by train.py
-
 # def load_lr_model():
 #     """Load Logistic Regression model (.pkl)."""
 #     return joblib.load(LR_MODEL_FILE)
@@ -281,7 +276,6 @@ def load_xgb_model():
 
 
 # Evaluation pipeline
-
 def evaluation_pipeline():
     """Full evaluation pipeline."""
     # 1. Load test data
@@ -296,7 +290,8 @@ def evaluation_pipeline():
     y_pred_xgb = xgb_model.predict(X_test)
 
     # 4. Build model_results dict
-    # lr_report_dict = classification_report(y_test, y_pred_lr, output_dict=True)
+    # lr_report_dict = classification_report(
+        # y_test, y_pred_lr, output_dict=True)
     xgb_report_dict = classification_report(
         y_test, y_pred_xgb, output_dict=True)
 
