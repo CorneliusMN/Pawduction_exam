@@ -1,7 +1,8 @@
 from pathlib import Path
 
 # Project root
-PROJ_ROOT = Path(__file__).resolve().parents[1] #goes up one level to parent directory from where config file is stored
+# goes up one level to parent directory from where config file is stored
+PROJ_ROOT = Path(__file__).resolve().parents[1]
 
 # Directories
 ARTIFACTS_DIR = PROJ_ROOT / "artifacts"
@@ -24,6 +25,6 @@ X_TEST_FILE = DATA_DIR / "X_test.csv"
 Y_TEST_FILE = DATA_DIR / "y_test.csv"
 DATE_FILTERED_DATA_FILE = DATA_DIR / "date_filtered_data.csv"
 
-#MLFlow registry
+# MLFlow registry
 MLRUNS_DIR = PROJ_ROOT / "mlruns"
 MLRUNS_TRASH_DIR = MLRUNS_DIR / ".trash"
