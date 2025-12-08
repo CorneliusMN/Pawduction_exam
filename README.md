@@ -8,7 +8,58 @@ The project is made up of cookiecutter files, organized with a daggerworkflow in
 
 ## Project Structure
 
-INSERT THE PROJECT STRUCTURE (perhaps)
+```
+├── README.md                        <- Project description, project structure, how to run the code
+│
+├── .dvc/
+│   │
+│   └── config                       <- Contains reference to remote/remote-URL for dvc pulling
+│
+├── .github/workflows                <- GitHub workflows
+│   │
+│   └── train_test_action.yml        <- Workflow that automatically trains and tests model
+│
+├── data                             <- Data-folder
+│   │
+│   └── raw_data.csv.dvc             <- DVC file for raw_data
+|
+├── artifacts                        <- Directory for model artifacts
+|
+├── mlruns                           <- Directory for MLRun logged info
+│
+├── docs                             <- Contains graphs used in markdown file
+│
+├── go                               <- Contains GO files for the project
+│   │
+│   └── pipeline.go                  <- The dagger workflow in GO
+│
+├── go.mod                           <- Go file for the module and required dependencies
+│
+├── go.sum                           <- Go file for continuity and integrity of dependencies
+│
+├── Makefile                         <- Creates the necesarry project structure for the workflow
+│
+├── requirements.txt                 <- Python dependencies needed for the project
+│
+│
+└── source                           <- Source code for the project
+    │
+    │
+    ├── config.py       <- Python script with essential configs like paths
+    │
+    ├── data.py         <- Script for loading data and filtering
+    │
+    ├── preprocess.py   <- Script for performing preprocessing steps on data
+    │
+    ├── train.py        <- Script for training and saving best model
+    │
+    ├── evaluation.py   <- Script for evaluating best model performance
+    │
+    ├── util.py         <- Utility functions used by scripts
+    │
+    └── wrappers.py     <- Wrappers used by training models
+
+```
 
 # How to Run the Project
 
