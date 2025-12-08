@@ -6,7 +6,14 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
 from util import impute_missing_values
-from config import DATE_FILTERED_DATA_FILE, OUTLIER_SUMMARY_FILE, CAT_MISSING_IMPUTE_FILE, SCALER_FILE, COLUMNS_DRIFT_FILE, TRAINING_DATA_FILE, TRAIN_GOLD_FILE
+from config import (
+    DATE_FILTERED_DATA_FILE,
+    OUTLIER_SUMMARY_FILE,
+    CAT_MISSING_IMPUTE_FILE,
+    SCALER_FILE, COLUMNS_DRIFT_FILE,
+    TRAINING_DATA_FILE,
+    TRAIN_GOLD_FILE
+)
 
 
 def describe_numeric_col(x: pd.Series) -> pd.Series:
@@ -25,10 +32,10 @@ def describe_numeric_col(x: pd.Series) -> pd.Series:
 def basic_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     '''
     Takes a pandas Dataframe and drop columns.
-    Then performs string cleaning
+    Then performs string cleaning.
     '''
     df = df.copy()
-    # dropping columns
+    # Dropping columns
     to_drop = [
         "is_active",
         "marketing_consent",
@@ -41,7 +48,7 @@ def basic_cleaning(df: pd.DataFrame) -> pd.DataFrame:
         "visited_faq"]
     df = df.drop(columns=[c for c in to_drop], axis=1)
 
-    # do string cleaning
+    # Do string cleaning
     for c in ["lead_indicator", "lead_id", "customer_code"]:
         df[c].replace("", np.nan, inplace=True)
 
@@ -51,9 +58,7 @@ def basic_cleaning(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def split_cat_cont(df: pd.DataFrame):
-    '''
-    Splits a pandas dataframe into categorical and continuous
-    '''
+    '''Splits a pandas dataframe into categorical and continuous.'''
     vars = [
         "lead_id",
         "lead_indicator",
@@ -71,28 +76,20 @@ def split_cat_cont(df: pd.DataFrame):
 
 
 def handle_outliers(cont_vars: pd.DataFrame) -> pd.DataFrame:
-    '''
-    Handles outliers for cont vars and prints summary to csv
-    '''
+    '''Handles outliers for cont vars and prints summary to csv.'''
     cont_vars_cleaned = cont_vars.apply(
         lambda x: x.clip(
             lower=(
-                x.mean() -
-                2 *
-                x.std()),
+                x.mean() - 2 * x.std()),
             upper=(
-                x.mean() +
-                2 *
-                x.std())))
+                x.mean() + 2 * x.std())))
     outlier_summary = cont_vars_cleaned.apply(describe_numeric_col).T
     outlier_summary.to_csv(OUTLIER_SUMMARY_FILE, index=False)
     return cont_vars_cleaned
 
 
 def impute(cat_vars: pd.DataFrame, cont_vars: pd.DataFrame):
-    '''
-    impute missing values using utils function
-    '''
+    '''Impute missing values using utils function.'''
     cat_missing_impute = cat_vars.mode(numeric_only=False, dropna=True)
     cat_missing_impute.to_csv(CAT_MISSING_IMPUTE_FILE, index=False)
 
@@ -110,7 +107,7 @@ def impute(cat_vars: pd.DataFrame, cont_vars: pd.DataFrame):
 
 def scale(cont_vars: pd.DataFrame):
     '''
-    scale the cont vars
+    Scale the cont vars.
     '''
     scaler = MinMaxScaler()
     scaler.fit(cont_vars)
@@ -127,14 +124,15 @@ def combine_and_document_drift(
         cont_vars: pd.DataFrame,
         cat_vars: pd.DataFrame) -> pd.DataFrame:
     '''
-    combine the cont vars and cat vars then dump into json for data drift comp
+    Combine the cont vars and cat vars then dump into json for data
+    drift comp.
     '''
-    # combining the data
+    # Combining the data
     cont_vars = cont_vars.reset_index(drop=True)
     cat_vars = cat_vars.reset_index(drop=True)
     data = pd.concat([cat_vars, cont_vars], axis=1)
 
-    # exporting data drift artifact
+    # Exporting data drift artifact
     data_columns = list(data.columns)
     with open(COLUMNS_DRIFT_FILE, 'w+') as f:
         json.dump(data_columns, f)
@@ -145,9 +143,7 @@ def combine_and_document_drift(
 
 
 def binning(data: pd.DataFrame) -> pd.DataFrame:
-    '''
-    bin the data
-    '''
+    '''Bin the data.'''
     data = data.copy()
     data['bin_source'] = data['source']
     values_list = ['li', 'organic', 'signup', 'fb']
@@ -163,25 +159,25 @@ def binning(data: pd.DataFrame) -> pd.DataFrame:
 
 def preprocess_pipeline(df: pd.DataFrame) -> pd.DataFrame:
     '''
-    takes raw data and runs all above functions
-    returns a csv with the gold data
+    Takes raw data and runs all above functions returns a csv
+    with the gold data.
     '''
     data = df.copy()
-    # apply cleaning
+    # Apply cleaning
     data = basic_cleaning(data)
-    # apply splitting
+    # Apply splitting
     cat_vars, cont_vars = split_cat_cont(data)
-    # handle outliers
+    # Handle outliers
     cont_vars_cleaned = handle_outliers(cont_vars)
-    # impute missing
+    # Impute missing
     cat_vars_imputed, cont_vars_imputed = impute(cat_vars, cont_vars_cleaned)
-    # scale cont
+    # Scale cont
     cont_vars_scaled = scale(cont_vars_imputed)
-    # combine it together
+    # Combine it together
     combined = combine_and_document_drift(cont_vars_scaled, cat_vars_imputed)
-    # bin it
+    # Bin it
     final = binning(combined)
-    # save gold data
+    # Save gold data
     final.to_csv(TRAIN_GOLD_FILE, index=False)
     return final
 
