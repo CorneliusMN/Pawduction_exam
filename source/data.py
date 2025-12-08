@@ -21,7 +21,7 @@ subprocess.run(["dvc", "pull"], check=True, cwd=PROJ_ROOT)
 # Loading data locally
 print("Loading training data")
 data = pd.read_csv(RAW_DATA_FILE)
-print("Total rows:", len(data))  # data.count()
+print("Total rows:", len(data)) # data.count()
 
 # Parameterize min and max date
 parser = argparse.ArgumentParser()
