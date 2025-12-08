@@ -61,14 +61,17 @@ The project is made up of cookiecutter files, organized with a daggerworkflow in
 
 # How to Run the Project
 
-INSERT CAN BE RUN TO WAY YADAYADA
+The project is intended to be run using github workflow, however if you wish it can also be run locally.
 
 ## Github workflow
 
-INSERT HOW TO RUN THROUGH GITHUB WORKFLOW
+From Actions pane in github run Train and Test ML Model workflow. Find Linear Regression model under artifacts named "model"
 
 ## MANUAL
 
-INSERT HOW TO RUN MANUALLY
+Have Docker Desktop running
+Run make
+Run go run go/pipeline.go
+This will download the required artifacts and create an artifacts directory in the project root, where both models can be found
 
 
