@@ -6,7 +6,12 @@ import subprocess
 import argparse
 import mlflow
 
-from config import DATE_LIMITS_FILE, RAW_DATA_FILE, DATE_FILTERED_DATA_FILE, PROJ_ROOT
+from config import (
+    DATE_LIMITS_FILE,
+    RAW_DATA_FILE,
+    DATE_FILTERED_DATA_FILE,
+    PROJ_ROOT
+)
 
 # Pulling data from DVC
 subprocess.run(["dvc", "update", "data/raw_data.csv.dvc"],
@@ -46,7 +51,8 @@ with mlflow.start_run():
             min_date: datetime.date,
             max_date: datetime.date) -> pd.DataFrame:
         """
-        Takes data frame and min/ max dates and returns a data frame filtered for the specified date range
+        Takes data frame and min/ max dates and returns a data frame
+        filtered for the specified date range.
         """
         df = df.copy()
         df["date_part"] = pd.to_datetime(df["date_part"]).dt.date
