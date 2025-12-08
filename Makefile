@@ -1,4 +1,4 @@
-# make runs setup automatically
+# Make runs setup automatically
 all: setup 
 
 DIRS = \
@@ -17,5 +17,5 @@ cleanup:
 	@rm -rf $(DIRS)
 	@echo "Cleanup complete."
 
-#prevents name conflict with files, ensures that commands always run
+# Prevents name conflict with files, ensures that commands always run
 .PHONY: all setup cleanup
