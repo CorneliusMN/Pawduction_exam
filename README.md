@@ -70,16 +70,16 @@ Find the Linear Regression model under artifacts named "model", as only this is 
 ## MANUAL
 
 For manually running the pipeline you will need to set up an environment on your computer. The go pipeline itself will handle the dependencies of the python scripts themselves, but you must have the following to run the code:
-'''
+```
 dagger >= v0.18.16
 go version >= go1.25.0
 Python >= 3.11.9
 Docker >= 28.3.2
-'''
+```
 However, older versions might be fine to run as well. When you have the environment setup you should launch docker desktop if using this, and then run the following from your terminal in the root directory run the following:
-'''
+```
 make
 go run pipeline.go
-'''
+```
 This will pull the data, make directories for model artifacts, data and mlflow logs and produce the model artifacts. You will be able to find all artifacts produced from the run, under the "Artifacts" folder. In the MLRuns folder you will be able to find logged MLFlow data. In the Data folder, you will be able to find the splits for test/train, the gold data etc.
 
