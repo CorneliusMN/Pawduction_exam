@@ -65,13 +65,23 @@ The project is intended to be run using github workflow, however if you wish it 
 
 ## Github workflow
 
-From Actions pane in github run Train and Test ML Model workflow. Find Linear Regression model under artifacts named "model"
+From Actions pane in github run Train and Test ML Model workflow. This will run both the artifact generation and the inference test against the model.
+You will be able to find all artifacts produced from the run, under the "Artifacts" folder. Find Linear Regression model under artifacts named "model". 
+In the MLRuns folder you will be able to find logged MLFlow data. In the Data folder, you will be able to find the splits for test/train, the gold data etc.
 
 ## MANUAL
 
-Have Docker Desktop running
-Run make
-Run go run go/pipeline.go
-This will download the required artifacts and create an artifacts directory in the project root, where both models can be found
-
+For manually running the pipeline you will need to set up an environment on your computer. The go pipeline itself will handle the dependencies of the python scripts themselves, but you must have the following to run the code:
+'''
+dagger >= v0.18.16
+go version >= go1.25.0
+Python >= 3.11.9
+Docker >= 28.3.2
+'''
+However, older versions might be fine to run as well. When you have the environment setup you should launch docker desktop if using this, and then run the following from your terminal in the root directory run the following:
+'''
+make
+go run pipeline.go
+'''
+This will pull the data, make directories for model artifacts, data and mlflow logs and produce the model artifacts in a setup similar to if you had run it through github workflow.
 
