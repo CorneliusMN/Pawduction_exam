@@ -3,7 +3,7 @@
 
 This project was done as part of the course Data Science in Production: MLOps and Software Engineering (Autumn 2025) at the IT University of Copenhagen. For more information click [here.](https://github.com/lasselundstenjensen/itu-sdse-project)
 
-The project is made up of cookiecutter files, organized with a daggerworkflow in go, which is orchestrated by a github workflow.
+The project is made up of Cookiecutter files, organized with a Dagger workflow in Go, which is orchestrated by a GitHub workflow.
 
 ![Project architecture](./docs/project-architecture.png)
 
@@ -30,7 +30,7 @@ The project is made up of cookiecutter files, organized with a daggerworkflow in
 │
 ├── docs                             <- Contains graphs used in markdown file
 │
-├── pipeline.go                      <- The dagger workflow in GO
+├── pipeline.go                      <- The dagger workflow in Go
 │
 ├── go.mod                           <- Go file for the module and required dependencies
 │
@@ -60,26 +60,25 @@ The project is made up of cookiecutter files, organized with a daggerworkflow in
 
 # How to Run the Project
 
-The project is intended to be run using github workflow, however if you wish it can also be run locally.
+The project is intended to be run using GitHub workflow; however, if you wish it can also be run locally.
 
 ## Github workflow
 
-From Actions pane in github run Train and Test ML Model workflow. This will run both the artifact generation and the inference test against the model.
+From Actions pane in GitHub run "Train and Test ML Model" workflow. This will run both the artifact generation and the inference test against the model.
 Find the Linear Regression model under artifacts named "model", as only this is tested during model inference, we only produce the model artifact here. If you wish to see all artifacts produced, please refer to the manual method below.
 
-## MANUAL
+## Manual
 
-For manually running the pipeline you will need to set up an environment on your computer. The go pipeline itself will handle the dependencies of the python scripts themselves, but you must have the following to run the code:
+For manually running the pipeline you will need to set up an environment on your computer. The Go pipeline itself will handle the dependencies of the Python scripts themselves, but you must have the following to run the code:
 ```
 dagger >= v0.18.16
 go version >= go1.25.0
 Python >= 3.11.9
 Docker >= 28.3.2
 ```
-However, older versions might be fine to run as well. When you have the environment setup you should launch docker desktop if using this, and then run the following from your terminal in the root directory run the following:
+However, older versions might be fine to run as well. When you have the environment setup you should launch Docker desktop if using this, and then run the following from your terminal in the root directory:
 ```
 make
 go run pipeline.go
 ```
-This will pull the data, make directories for model artifacts, data and mlflow logs and produce the model artifacts. You will be able to find all artifacts produced from the run, under the "Artifacts" folder. In the MLRuns folder you will be able to find logged MLFlow data. In the Data folder, you will be able to find the splits for test/train, the gold data etc.
-
+This will pull the data, make directories for model artifacts, data and MLflow logs and produce the model artifacts. You will be able to find all artifacts produced from the run, under the "artifacts" folder. In the "mlruns" folder you will be able to find logged MLFlow data. In the "data" folder, you will be able to find the splits for test/train, the gold data etc...
