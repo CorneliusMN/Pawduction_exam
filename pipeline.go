@@ -86,7 +86,7 @@ func Build(ctx context.Context) error {
 
 	_, err = evaluation.
 		Directory("/repo/source/mlruns").
-		Export(ctx, "source/mlruns")
+		Export(ctx, "mlruns")
 	if err != nil {
 		return err
 	}
