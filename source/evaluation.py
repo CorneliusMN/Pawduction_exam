@@ -312,7 +312,7 @@ def evaluation_pipeline():
     xgb_report_dict = classification_report(
         y_test, y_pred_xgb, output_dict=True)
 
-    model_results = {"logistic_regression": lr_report_dict, "xgboost": xgb_report_dict}
+    model_results = {"xgboost": xgb_report_dict}
 
     # 5. Save artifacts
     columns_path, results_path = save_columns_and_model_results(
