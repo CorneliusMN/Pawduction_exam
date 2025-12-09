@@ -4,6 +4,7 @@
 This project was done as part of the course Data Science in Production: MLOps and Software Engineering (Autumn 2025) at the IT University of Copenhagen. For more information click [here.](https://github.com/lasselundstenjensen/itu-sdse-project)
 
 The project is made up of cookiecutter files, organized with a daggerworkflow in go, which is orchestrated by a github workflow.
+
 ![Project architecture](./docs/project-architecture.png)
 
 ## Project Structure
@@ -29,9 +30,7 @@ The project is made up of cookiecutter files, organized with a daggerworkflow in
 │
 ├── docs                             <- Contains graphs used in markdown file
 │
-├── go                               <- Contains GO files for the project
-│   │
-│   └── pipeline.go                  <- The dagger workflow in GO
+├── pipeline.go                      <- The dagger workflow in GO
 │
 ├── go.mod                           <- Go file for the module and required dependencies
 │
@@ -66,8 +65,7 @@ The project is intended to be run using github workflow, however if you wish it 
 ## Github workflow
 
 From Actions pane in github run Train and Test ML Model workflow. This will run both the artifact generation and the inference test against the model.
-You will be able to find all artifacts produced from the run, under the "Artifacts" folder. Find Linear Regression model under artifacts named "model". 
-In the MLRuns folder you will be able to find logged MLFlow data. In the Data folder, you will be able to find the splits for test/train, the gold data etc.
+Find the Linear Regression model under artifacts named "model", as only this is tested during model inference, we only produce the model artifact here. If you wish to see all artifacts produced, please refer to the manual method below.
 
 ## MANUAL
 
@@ -83,5 +81,5 @@ However, older versions might be fine to run as well. When you have the environm
 make
 go run pipeline.go
 '''
-This will pull the data, make directories for model artifacts, data and mlflow logs and produce the model artifacts in a setup similar to if you had run it through github workflow.
+This will pull the data, make directories for model artifacts, data and mlflow logs and produce the model artifacts. You will be able to find all artifacts produced from the run, under the "Artifacts" folder. In the MLRuns folder you will be able to find logged MLFlow data. In the Data folder, you will be able to find the splits for test/train, the gold data etc.
 
