@@ -191,12 +191,15 @@ def compare_prod_and_best_trained(
     print(f"Registered model: {run_id}.")
     return run_id
 
-def wait_until_ready(model_name, model_version):
+
+# Register best model
+def wait_until_ready(model_name: str, model_version: int):
+    """Check if model is ready, otherwise wait."""
     client = MlflowClient()
     for _ in range(10):
         model_version_details = client.get_model_version(
-          name=model_name,
-          version=model_version,
+            name=model_name,
+            version=model_version,
         )
         status = ModelVersionStatus.from_string(model_version_details.status)
         print(f"Model status: {ModelVersionStatus.to_string(status)}")
@@ -204,7 +207,7 @@ def wait_until_ready(model_name, model_version):
             break
         time.sleep(1)
 
-# Register best model
+
 def register_best_model(
         run_id: str | None,
         artifact_path: str,
@@ -305,7 +308,7 @@ def evaluation_pipeline():
 
     # 4. Build model_results dict
     # lr_report_dict = classification_report(
-        # y_test, y_pred_lr, output_dict=True)
+    # y_test, y_pred_lr, output_dict=True)
     xgb_report_dict = classification_report(
         y_test, y_pred_xgb, output_dict=True)
 
