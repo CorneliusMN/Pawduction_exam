@@ -9,6 +9,7 @@ from sklearn.metrics import (
 from sklearn.model_selection import RandomizedSearchCV
 import mlflow
 from mlflow.tracking import MlflowClient
+from mlflow.entities.model_registry.model_version_status import ModelVersionStatus
 import pandas as pd
 import numpy as np
 import joblib
@@ -190,6 +191,18 @@ def compare_prod_and_best_trained(
     print(f"Registered model: {run_id}.")
     return run_id
 
+def wait_until_ready(model_name, model_version):
+    client = MlflowClient()
+    for _ in range(10):
+        model_version_details = client.get_model_version(
+          name=model_name,
+          version=model_version,
+        )
+        status = ModelVersionStatus.from_string(model_version_details.status)
+        print(f"Model status: {ModelVersionStatus.to_string(status)}")
+        if status == ModelVersionStatus.READY:
+            break
+        time.sleep(1)
 
 # Register best model
 def register_best_model(
@@ -203,6 +216,7 @@ def register_best_model(
             artifact_path=artifact_path, run_id=run_id)
         model_details = mlflow.register_model(
             model_uri=model_uri, name=model_name)
+        wait_until_ready(model_details.name, model_details.version)
         model_details = dict(model_details)
         return model_details
     else:
